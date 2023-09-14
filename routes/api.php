@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -45,4 +46,11 @@ Route::group(
         Route::put('suppliers/{id}', [SupplierController::class, 'update']);
         Route::delete('suppliers/{id}', [SupplierController::class, 'destroy']);
         
+        // customers
+        Route::get('customers', [CustomerController::class, 'index']);
+        Route::get('customers/governorate/{id}', [CustomerController::class, 'indexByGovernorate']);
+        Route::post('customers', [CustomerController::class, 'store']);
+        Route::get('customers/{id}', [CustomerController::class, 'show']);
+        Route::put('customers/{id}', [CustomerController::class, 'update']);
+        Route::delete('customers/{id}', [CustomerController::class, 'destroy']);
     }); 
