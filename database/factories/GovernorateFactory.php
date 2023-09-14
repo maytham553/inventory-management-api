@@ -18,7 +18,7 @@ class GovernorateFactory extends Factory
     {
         return [
             'name' => $this->faker->word,
-            'code' => strtoupper($this->faker->lexify('???')),database/factories/GovernorateFactory.php 
+            'code' => strtoupper($this->faker->lexify('???'))
         ];
     }
 }

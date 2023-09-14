@@ -31,7 +31,7 @@ class SupplierController extends Controller
             return response()->success($suppliers, 'Suppliers retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
-        }app/Http/Repositories/SupplierRepository.php 
+        }
     }
 
     public function store(Request $request)
