@@ -13,4 +13,9 @@ class Governorate extends Model
         'name',
         'code',
     ];
+
+    public function suppliers()
+    {
+        return $this->hasMany(Supplier::class);
+    }
 }
