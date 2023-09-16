@@ -23,4 +23,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Governorate::class);
     }
+
+    public function customerTransactions()
+    {
+        return $this->hasMany(CustomerTransaction::class);
+    }
 }

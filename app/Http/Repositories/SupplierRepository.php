@@ -50,13 +50,13 @@ class SupplierRepository
         return $supplier->save();
     }
 
-    // public function reCalculateBalance(Supplier $supplier)
-    // {
-    //     $supplier->balance = $supplier->supplierTransactions->sum(function ($transaction) {
-    //         return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
-    //     });
-    //     return $supplier->save();
-    // }
+    public function reCalculateBalance(Supplier $supplier)
+    {
+        $supplier->balance = $supplier->supplierTransactions->sum(function ($transaction) {
+            return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
+        });
+        return $supplier->save();
+    }
 
     public function destroy(Supplier $supplier)
     {

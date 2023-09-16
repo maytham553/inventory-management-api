@@ -83,6 +83,18 @@ class CustomerController extends Controller
         }
     }
 
+    public function reCalculateBalance($id)
+    {
+        try {
+            $customer = $this->customerRepository->find($id);
+            $this->customerRepository->reCalculateBalance($customer);
+            return response()->success($customer, 'Customer balance recalculated successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
+
     public function destroy($id)
     {
         try {

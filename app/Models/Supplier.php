@@ -23,4 +23,9 @@ class Supplier extends Model
     {
         return $this->belongsTo(Governorate::class);
     }
+
+    public function supplierTransactions()
+    {
+        return $this->hasMany(SupplierTransaction::class);
+    }
 }

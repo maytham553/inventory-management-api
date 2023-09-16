@@ -50,13 +50,13 @@ class CustomerRepository
         return $customer->save();
     }
 
-    // public function reCalculateBalance(Customer $customer)
-    // {
-    //     $customer->balance = $customer->customerTransactions->sum(function ($transaction) {
-    //         return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
-    //     });
-    //     return $customer->save();
-    // }
+    public function reCalculateBalance(Customer $customer)
+    {
+        $customer->balance = $customer->customerTransactions->sum(function ($transaction) {
+            return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
+        });
+        return $customer->save();
+    }
 
     public function destroy(Customer $customer)
     {

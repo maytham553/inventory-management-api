@@ -46,7 +46,7 @@ Route::group(
         Route::post('suppliers', [SupplierController::class, 'store']);
         Route::get('suppliers/{id}', [SupplierController::class, 'show']);
         Route::put('suppliers/{id}', [SupplierController::class, 'update']);
-        // Route::put('suppliers/{id}/re-calculate-balance', [SupplierController::class, 'reCalculateBalance']);
+        Route::put('suppliers/{id}/re-calculate-balance', [SupplierController::class, 'reCalculateBalance']);
         Route::delete('suppliers/{id}', [SupplierController::class, 'destroy']);
 
         // customers
@@ -55,7 +55,7 @@ Route::group(
         Route::post('customers', [CustomerController::class, 'store']);
         Route::get('customers/{id}', [CustomerController::class, 'show']);
         Route::put('customers/{id}', [CustomerController::class, 'update']);
-        // Route::put('customers/{id}/re-calculate-balance', [CustomerController::class, 'reCalculateBalance']);
+        Route::put('customers/{id}/re-calculate-balance', [CustomerController::class, 'reCalculateBalance']);
         Route::delete('customers/{id}', [CustomerController::class, 'destroy']);
 
         // supplier transactions

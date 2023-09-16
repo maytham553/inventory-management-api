@@ -83,6 +83,17 @@ class SupplierController extends Controller
         }
     }
 
+    public function reCalculateBalance($id)
+    {
+        try {
+            $supplier = $this->supplierRepository->find($id);
+            $this->supplierRepository->reCalculateBalance($supplier);
+            return response()->success($supplier, 'Supplier balance recalculated successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
     public function destroy($id)
     {
         try {
