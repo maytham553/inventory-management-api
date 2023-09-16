@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerTransactionController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // login 
-Route::post('login' , [AuthController::class , 'login']);
+Route::post('login', [AuthController::class, 'login']);
 
 Route::group(
     [
@@ -47,7 +48,7 @@ Route::group(
         Route::put('suppliers/{id}', [SupplierController::class, 'update']);
         // Route::put('suppliers/{id}/re-calculate-balance', [SupplierController::class, 'reCalculateBalance']);
         Route::delete('suppliers/{id}', [SupplierController::class, 'destroy']);
-        
+
         // customers
         Route::get('customers', [CustomerController::class, 'index']);
         Route::get('customers/governorate/{id}', [CustomerController::class, 'indexByGovernorate']);
@@ -63,4 +64,13 @@ Route::group(
         Route::get('supplier-transactions/{id}', [SupplierTransactionController::class, 'show']);
         Route::put('supplier-transactions/{id}', [SupplierTransactionController::class, 'update']);
         Route::delete('supplier-transactions/{id}', [SupplierTransactionController::class, 'destroy']);
-    }); 
+
+        // customer transactions
+        Route::get('customer-transactions', [CustomerTransactionController::class, 'index']);
+        Route::get('customer-transactions/customer/{id}', [CustomerTransactionController::class, 'indexByCustomer']);
+        Route::get('customer-transactions/{id}', [CustomerTransactionController::class, 'show']);
+        Route::post('customer-transactions', [CustomerTransactionController::class, 'store']);
+        Route::put('customer-transactions/{id}', [CustomerTransactionController::class, 'update']);
+        Route::delete('customer-transactions/{id}', [CustomerTransactionController::class, 'destroy']);
+    }
+);

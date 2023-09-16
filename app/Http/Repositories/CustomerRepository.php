@@ -39,6 +39,25 @@ class CustomerRepository
         return $customer->update($data);
     }
 
+
+    public function updateBalance(Customer $customer, $amount, $type)
+    {
+        if ($type == 'credit') {
+            $customer->balance += $amount;
+        } else {
+            $customer->balance -= $amount;
+        }
+        return $customer->save();
+    }
+
+    // public function reCalculateBalance(Customer $customer)
+    // {
+    //     $customer->balance = $customer->customerTransactions->sum(function ($transaction) {
+    //         return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
+    //     });
+    //     return $customer->save();
+    // }
+
     public function destroy(Customer $customer)
     {
         return $customer->delete();
