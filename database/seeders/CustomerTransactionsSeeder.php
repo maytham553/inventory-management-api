@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\SupplierTransaction;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\CustomerTransaction;
 use Illuminate\Database\Seeder;
 
 class CustomerTransactionsSeeder extends Seeder
@@ -13,6 +12,6 @@ class CustomerTransactionsSeeder extends Seeder
      */
     public function run(): void
     {
-        SupplierTransaction::factory()->count(50)->create();
+        CustomerTransaction::factory()->count(50)->create();
     }
 }
