@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,7 @@ Route::group(
         Route::post('suppliers', [SupplierController::class, 'store']);
         Route::get('suppliers/{id}', [SupplierController::class, 'show']);
         Route::put('suppliers/{id}', [SupplierController::class, 'update']);
+        // Route::put('suppliers/{id}/re-calculate-balance', [SupplierController::class, 'reCalculateBalance']);
         Route::delete('suppliers/{id}', [SupplierController::class, 'destroy']);
         
         // customers
@@ -52,5 +54,13 @@ Route::group(
         Route::post('customers', [CustomerController::class, 'store']);
         Route::get('customers/{id}', [CustomerController::class, 'show']);
         Route::put('customers/{id}', [CustomerController::class, 'update']);
+        // Route::put('customers/{id}/re-calculate-balance', [CustomerController::class, 'reCalculateBalance']);
         Route::delete('customers/{id}', [CustomerController::class, 'destroy']);
+
+        // supplier transactions
+        Route::get('supplier-transactions', [SupplierTransactionController::class, 'index']);
+        Route::post('supplier-transactions', [SupplierTransactionController::class, 'store']);
+        Route::get('supplier-transactions/{id}', [SupplierTransactionController::class, 'show']);
+        Route::put('supplier-transactions/{id}', [SupplierTransactionController::class, 'update']);
+        Route::delete('supplier-transactions/{id}', [SupplierTransactionController::class, 'destroy']);
     }); 

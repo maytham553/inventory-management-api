@@ -40,9 +40,26 @@ class SupplierRepository
         return $supplier->update($data);
     }
 
+    public function updateBalance(Supplier $supplier, $amount, $type)
+    {
+        if ($type == 'credit') {
+            $supplier->balance += $amount;
+        } else {
+            $supplier->balance -= $amount;
+        }
+        return $supplier->save();
+    }
+
+    // public function reCalculateBalance(Supplier $supplier)
+    // {
+    //     $supplier->balance = $supplier->supplierTransactions->sum(function ($transaction) {
+    //         return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
+    //     });
+    //     return $supplier->save();
+    // }
+
     public function destroy(Supplier $supplier)
     {
         return $supplier->delete();
     }
-
 }
