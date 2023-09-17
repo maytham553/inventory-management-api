@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerTransactionController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
@@ -72,5 +73,12 @@ Route::group(
         Route::post('customer-transactions', [CustomerTransactionController::class, 'store']);
         Route::put('customer-transactions/{id}', [CustomerTransactionController::class, 'update']);
         Route::delete('customer-transactions/{id}', [CustomerTransactionController::class, 'destroy']);
+
+        // products
+        Route::get('products', [ProductController::class, 'index']);
+        Route::post('products', [ProductController::class, 'store']);
+        Route::get('products/{id}', [ProductController::class, 'show']);
+        Route::put('products/{id}', [ProductController::class, 'update']);
+        Route::delete('products/{id}', [ProductController::class, 'destroy']);
     }
 );
