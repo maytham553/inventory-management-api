@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerTransactionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RawMaterialController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
@@ -95,5 +96,11 @@ Route::group(
         Route::post('purchases', [PurchaseController::class, 'store']);
         Route::get('purchases/{id}', [PurchaseController::class, 'show']);
         Route::put('purchases/{id}', [PurchaseController::class, 'update']);
+
+        // sales
+        Route::get('sales', [SaleController::class, 'index']);
+        Route::post('sales', [SaleController::class, 'store']);
+        Route::get('sales/{id}', [SaleController::class, 'show']);
+        Route::put('sales/{id}', [SaleController::class, 'update']);
     }
 );
