@@ -33,17 +33,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
     public function createToken(string $name, array $abilities = ['*'])
@@ -51,7 +40,6 @@ class User extends Authenticatable
         $token = $this->tokens()->create([
             'name' => $name,
             'token' => hash('sha256', $plainTextToken = Str::random(240)),
-            'abilities' => $abilities,
         ]);
 
         return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
