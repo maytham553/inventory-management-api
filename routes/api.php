@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerTransactionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RawMaterialController;
+use App\Http\Controllers\RawMaterialWithdrawalRecordController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
@@ -102,5 +103,13 @@ Route::group(
         Route::post('sales', [SaleController::class, 'store']);
         Route::get('sales/{id}', [SaleController::class, 'show']);
         Route::put('sales/{id}', [SaleController::class, 'update']);
+
+        // raw material withdrawal records
+        Route::get('raw-material-withdrawal-records', [RawMaterialWithdrawalRecordController::class, 'index']);
+        Route::post('raw-material-withdrawal-records', [RawMaterialWithdrawalRecordController::class, 'store']);
+        Route::get('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'show']);
+        Route::get('raw-material-withdrawal-records/raw-material/{id}', [RawMaterialWithdrawalRecordController::class, 'indexByRawMaterial']);
+        Route::put('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'update']);
+        Route::delete('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'destroy']);
     }
 );
