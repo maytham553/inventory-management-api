@@ -42,7 +42,6 @@ class SupplierController extends Controller
             'phone' => 'required|string',
             'address' => 'required|string',
             'governorate_id' => 'required|exists:governorates,id',
-            'balance' => 'required|numeric',
             'note' => 'nullable|string',
         ]);
         try {
@@ -71,7 +70,6 @@ class SupplierController extends Controller
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
             'governorate_id' => 'nullable|exists:governorates,id',
-            'balance' => 'nullable|numeric',
             'note' => 'nullable|string',
         ]);
         try {
