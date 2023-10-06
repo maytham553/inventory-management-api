@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerTransactionController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RawMaterialController;
@@ -111,5 +113,16 @@ Route::group(
         Route::get('raw-material-withdrawal-records/raw-material/{id}', [RawMaterialWithdrawalRecordController::class, 'indexByRawMaterial']);
         Route::put('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'update']);
         Route::delete('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'destroy']);
+
+        // expenses
+        Route::get('expenses', [ExpenseController::class, 'index']);
+        Route::get('expenses/user/{id}', [ExpenseController::class, 'indexByUser']);
+        Route::post('expenses', [ExpenseController::class, 'store']);
+        Route::get('expenses/{id}', [ExpenseController::class, 'show']);
+        Route::put('expenses/{id}', [ExpenseController::class, 'update']);
+        Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
+
+        // governrate return all 
+        Route::get('governorates', [GovernorateController::class, 'index']);
     }
 );
