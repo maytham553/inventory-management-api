@@ -29,4 +29,8 @@ class UserRepository
     {
         return $user->update($data); 
     }
+    public function destroy(User $user)
+    {
+        return $user->delete();
+    }
 }

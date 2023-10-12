@@ -109,7 +109,7 @@ class UserController extends Controller
     {
         try {
             $user = $this->userRepository->find($id);
-            $user->delete();
+            $user = $this->userRepository->destroy($user);
             return response()->success($user, 'User deleted successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
