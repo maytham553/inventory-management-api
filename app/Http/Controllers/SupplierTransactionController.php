@@ -24,6 +24,16 @@ class SupplierTransactionController extends Controller
         }
     }
 
+    public function indexBySupplier($id)
+    {
+        try {
+            $supplierTransactions = $this->supplierTransactionRepository->indexBySupplier($id);
+            return response()->success($supplierTransactions, 'Supplier Transactions retrieved successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([

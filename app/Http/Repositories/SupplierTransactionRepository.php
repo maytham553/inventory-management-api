@@ -22,6 +22,11 @@ class SupplierTransactionRepository
         return $this->supplierTransaction::with('supplier')->paginate(15);
     }
 
+    public function indexBySupplier($id)
+    {
+        return $this->supplierTransaction::with('supplier')->where('supplier_id', $id)->paginate(15);
+    }
+
     public function find($id)
     {
         return $this->supplierTransaction::with('supplier')->findOrFail($id);

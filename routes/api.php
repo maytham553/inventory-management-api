@@ -29,6 +29,11 @@ use Illuminate\Support\Facades\Route;
 // login 
 Route::post('login', [AuthController::class, 'login']);
 
+// test api 
+Route::get('test', function () {
+    return response()->success('test', 'test', 200);
+});
+
 Route::group(
     [
         'prefix' => 'auth',
@@ -71,6 +76,7 @@ Route::group(
         Route::get('supplier-transactions/{id}', [SupplierTransactionController::class, 'show']);
         Route::put('supplier-transactions/{id}', [SupplierTransactionController::class, 'update']);
         Route::delete('supplier-transactions/{id}', [SupplierTransactionController::class, 'destroy']);
+        Route::get('supplier-transactions/supplier/{id}', [SupplierTransactionController::class, 'indexBySupplier']);
 
         // customer transactions
         Route::get('customer-transactions', [CustomerTransactionController::class, 'index']);
