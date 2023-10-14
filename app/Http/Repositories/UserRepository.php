@@ -15,7 +15,7 @@ class UserRepository
     }
     public function index()
     {
-        return $this->user::paginate();
+        return $this->user::orderBy('id', 'desc')->paginate(15);
     }
     public function find($id)
     {

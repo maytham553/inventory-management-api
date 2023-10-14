@@ -16,12 +16,13 @@ class RawMaterialWithdrawalRecordRepository
 
     public function index()
     {
-        return $this->rawMaterialWithdrawalRecord::paginate(15);
+        return $this->rawMaterialWithdrawalRecord::with('rawMaterial')->orderBy('id', 'desc')->paginate(15);
     }
+
 
     public function indexByRawMaterial($rawMaterialId)
     {
-        return $this->rawMaterialWithdrawalRecord::where('raw_material_id', $rawMaterialId)->paginate(15);
+        return $this->rawMaterialWithdrawalRecord::where('raw_material_id', $rawMaterialId)->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

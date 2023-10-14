@@ -15,7 +15,7 @@ class RawMaterialRepository
 
     public function index()
     {
-        return $this->rawMaterial::paginate(15);
+        return $this->rawMaterial::orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

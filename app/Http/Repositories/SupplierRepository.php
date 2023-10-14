@@ -16,12 +16,12 @@ class SupplierRepository
 
     public function index()
     {
-        return $this->supplier::paginate(15);
+        return $this->supplier::orderBy('id', 'desc')->paginate(15);
     }
 
     public function indexByGovernorate($id)
     {
-        return $this->supplier::where('governorate_id', $id)->paginate(15);
+        return $this->supplier::where('governorate_id', $id)->orderBy('id', 'desc')->paginate(15);
     }
 
 

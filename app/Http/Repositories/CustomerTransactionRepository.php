@@ -19,12 +19,12 @@ class CustomerTransactionRepository
 
     public function index()
     {
-        return $this->customerTransaction::with('customer')->paginate(15);
+        return $this->customerTransaction::with('customer')->orderBy('id', 'desc')->paginate(15);
     }
 
     public function indexByCustomer($id)
     {
-        return $this->customerTransaction::where('customer_id', $id)->paginate(15);
+        return $this->customerTransaction::with('customer')->where('customer_id', $id)->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

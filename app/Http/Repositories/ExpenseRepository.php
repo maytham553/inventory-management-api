@@ -16,12 +16,12 @@ class ExpenseRepository
 
     public function index()
     {
-        return $this->expense::paginate(15);
+        return $this->expense::orderBy('id', 'desc')->paginate(15);
     }
 
     public function indexByUser($userId)
     {
-        return $this->expense::where('user_id', $userId)->paginate(15);
+        return $this->expense::where('user_id', $userId)->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

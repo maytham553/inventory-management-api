@@ -18,7 +18,7 @@ class SaleRepository
 
     public function index()
     {
-        return $this->sale::with('customer')->paginate(15);
+        return $this->sale::with('customer')->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

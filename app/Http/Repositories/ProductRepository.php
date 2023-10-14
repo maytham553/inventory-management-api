@@ -15,7 +15,7 @@ class ProductRepository
 
     public function index()
     {
-        return $this->product::paginate(15);
+        return $this->product::orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

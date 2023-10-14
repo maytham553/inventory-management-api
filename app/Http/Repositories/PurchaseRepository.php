@@ -19,7 +19,7 @@ class PurchaseRepository
 
     public function index()
     {
-        return $this->purchase::with('supplier')->paginate(15);
+        return $this->purchase::with('supplier')->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)

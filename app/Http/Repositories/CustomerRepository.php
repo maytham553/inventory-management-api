@@ -16,12 +16,13 @@ class CustomerRepository
 
     public function index()
     {
-        return $this->customer::paginate(15);
+
+        return $this->customer::orderBy('id', 'desc')->paginate(15);
     }
 
     public function indexByGovernorate($id)
     {
-        return $this->customer::where('governorate_id', $id)->paginate(15);
+        return $this->customer::where('governorate_id', $id)->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)
