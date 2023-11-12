@@ -39,7 +39,8 @@ class Sale extends Model
                 'subtotal',
                 'total',
                 'unit_price',
-                'discount_amount'
+                'discount_amount',
+                'cost'
             );
     }
 

@@ -18,8 +18,8 @@ return new class extends Migration
             // the barcode should be not nullable
             $table->string('barcode')->unique()->nullable();
             $table->integer('quantity')->default(0);
-            $table->decimal('price', 10, 0)->default(0);
-            $table->decimal('cost', 10, 0)->default(0);
+            $table->decimal('price', 10 )->default(0);
+            $table->decimal('cost', 10 )->default(0);
             $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();

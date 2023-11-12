@@ -16,11 +16,12 @@ return new class extends Migration
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
             $table->foreignId('raw_material_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
-            $table->decimal('subtotal', 10, 0);
-            $table->decimal('total', 10, 0);
-            $table->decimal('unit_price', 10, 0);
-            $table->decimal('discount_amount', 10, 0);
-            $table->decimal('discount_percentage', 5, 0);
+            $table->decimal('subtotal', 10 );
+            $table->decimal('total', 10 );
+            $table->decimal('unit_price', 10 );
+            $table->decimal('discount_amount', 10 )-> nullable();
+            $table->decimal('discount_percentage', 5 )-> nullable();
+            $table->decimal('cost', 10 )->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

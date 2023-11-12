@@ -14,10 +14,36 @@ class SupplierRepository
         $this->supplier = $supplier;
     }
 
-    public function index()
+    public function index($search)
     {
+        if ($search) {
+            return $this->supplier::where('id', 'like', "%$search%")
+                ->orWhere('name', 'like', "%$search%")
+                ->orWhere('phone', 'like', "%$search%")
+                ->orWhereHas('governorate', function ($query) use ($search) {
+                    $query->where('name', 'like', "%$search%");
+                })
+                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN name LIKE '%$search%' THEN 2 WHEN phone LIKE '%$search%' THEN 3 WHEN address LIKE '%$search%' THEN 4 ELSE 5 END")
+                ->paginate(15);
+        }
         return $this->supplier::orderBy('id', 'desc')->paginate(15);
     }
+
+
+    // public function findWithPurchases($id, $search)
+    // {
+    //     if ($search) {
+    //         return $this->supplier::with(['purchases' => function ($query) {
+    //             $query->orderBy('id', 'desc')->paginate(15);
+    //         }, 'purchases.rawMaterials'])->whereHas('purchase', function ($query) use ($search) {
+    //             $query->where('id', 'like', "%$search%");
+    //         })->findOrFail($id);
+    //     }
+    //     return $this->supplier::with(['purchases' => function ($query) {
+    //         $query->orderBy('id', 'desc')->paginate(15);
+    //     }, 'purchases.rawMaterials'])->findOrFail($id);
+    // }
+
 
     public function indexByGovernorate($id)
     {

@@ -34,12 +34,13 @@ class SaleController extends Controller
             'status' => 'required|in:pending,confirmed,cancelled',
             'note' => 'nullable|string',
             'products' => 'required|array',
-            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.product_id' => 'required|distinct|exists:products,id',
             'products.*.quantity' => 'required|numeric|max:999999999999|min:1',
             'products.*.subtotal' => 'required|numeric|max:999999999999',
             'products.*.total' => 'required|numeric|max:999999999999',
             'products.*.unit_price' => 'required|numeric|max:999999999999',
             'products.*.discount_amount' => 'nullable|numeric|max:9999999999',
+            'raw_materials.*.cost' => 'required|numeric',
         ]);
         $data['user_id'] = auth()->user()->id;
         try {
@@ -76,10 +77,14 @@ class SaleController extends Controller
             'products.*.total' => 'required|numeric|max:999999999999',
             'products.*.unit_price' => 'required|numeric|max:999999999999',
             'products.*.discount_amount' => 'required|numeric|max:9999999999',
+            'raw_materials.*.cost' => 'required|numeric',
         ]);
         $data['user_id'] = auth()->user()->id;
         try {
             $sale = $this->saleRepository->find($id);
+            if ($sale->status == 'confirmed') {
+                return response()->error('Sale status is confirmed, you can not update it', 400);
+            }
             $sale = $this->saleRepository->update($sale, $data);
             return response()->success($sale, 'Sale updated successfully', 200);
         } catch (\Throwable $th) {

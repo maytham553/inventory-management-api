@@ -18,7 +18,8 @@ class CustomerController extends Controller
     public function index()
     {
         try {
-            $customers = $this->customerRepository->index();
+            $search = request()->search;
+            $customers = $this->customerRepository->index($search);
             return response()->success($customers, 'Customers retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
@@ -88,7 +89,20 @@ class CustomerController extends Controller
         try {
             $customer = $this->customerRepository->find($id);
             $this->customerRepository->reCalculateBalance($customer);
-            return response()->success($customer, 'Customer balance recalculated successfully', 200);
+            $balance = $customer->balance;
+            return response()->success($balance, 'Customer balance recalculated successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
+    public function getSales($id)
+    {
+        try {
+            $search = request()->search;
+            $customer = $this->customerRepository->find($id);
+            $sales = $this->customerRepository->getSales($customer , $search);
+            return response()->success($sales, 'Customer sales retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
         }

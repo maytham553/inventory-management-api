@@ -25,7 +25,7 @@ class CustomerTransactionFactory extends Factory
             'customer_id' => $customerId,
             'user_id' => $userId,
             'type' => $this->faker->randomElement(['credit', 'debit']),
-            'amount' => $this->faker->randomFloat(4, 1, 10000),
+            'amount' =>$this->faker->numberBetween(0, 1000),
             'note' => $this->faker->sentence,
         ];
     }

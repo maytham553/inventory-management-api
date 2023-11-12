@@ -35,6 +35,7 @@ class SaleRepository
             $sale->products()->sync($data['products'] ?? []);
             if ($data['status'] == 'confirmed') {
                 $this->storeCustomerTransaction($sale);
+                $this->calculateProductsQuantity($sale);
             }
             DB::commit();
             return $sale;
@@ -52,8 +53,10 @@ class SaleRepository
             $this->updateCustomerTransaction($sale, $data);
             $sale->products()->sync($data['products'] ?? []);
             $sale->update($data);
+            if ($data['status'] == 'confirmed') {
+                $this->calculateProductsQuantity($sale);
+            }
             DB::commit();
-            $sale->refresh();
             return $sale;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -105,6 +108,15 @@ class SaleRepository
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
+        }
+    }
+
+    private function calculateProductsQuantity(Sale $sale)
+    {
+        $products = $sale->products;
+        foreach ($products as $product) {
+            $product->quantity -= $product->pivot->quantity;
+            $product->save();
         }
     }
 

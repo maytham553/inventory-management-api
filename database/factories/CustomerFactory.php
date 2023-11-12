@@ -25,7 +25,7 @@ class CustomerFactory extends Factory
             'phone' => $this->faker->phoneNumber,
             'address' => $this->faker->address,
             'governorate_id' => $governorateId,
-            'balance' => $this->faker->randomFloat(2, 0, 1000),
+            'balance' => $this->faker->numberBetween(0, 1000),
             'note' => $this->faker->text,
         ];
     }

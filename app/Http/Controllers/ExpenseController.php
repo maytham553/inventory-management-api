@@ -16,8 +16,9 @@ class ExpenseController extends Controller
 
     public function index()
     {
+        $search = request()->search;
         try {
-            $expenses = $this->expenseRepository->index();
+            $expenses = $this->expenseRepository->index($search);
             return response()->success($expenses, 'Expenses retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);

@@ -20,11 +20,12 @@ return new class extends Migration
             $table->decimal('total', 10);
             $table->decimal('unit_price', 10);
             $table->decimal('discount_amount', 10);
+            $table->decimal('cost', 10)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      */

@@ -69,6 +69,7 @@ Route::group(
         Route::put('customers/{id}', [CustomerController::class, 'update']);
         Route::put('customers/{id}/re-calculate-balance', [CustomerController::class, 'reCalculateBalance']);
         Route::delete('customers/{id}', [CustomerController::class, 'destroy']);
+        Route::get('customers/{id}/sales', [CustomerController::class, 'getSales']);
 
         // supplier transactions
         Route::get('supplier-transactions', [SupplierTransactionController::class, 'index']);
@@ -102,6 +103,7 @@ Route::group(
 
         // purchases
         Route::get('purchases', [PurchaseController::class, 'index']);
+        Route::get('purchases/supplier/{id}', [PurchaseController::class, 'indexBySupplier']);
         Route::post('purchases', [PurchaseController::class, 'store']);
         Route::get('purchases/{id}', [PurchaseController::class, 'show']);
         Route::put('purchases/{id}', [PurchaseController::class, 'update']);
@@ -111,6 +113,7 @@ Route::group(
         Route::post('sales', [SaleController::class, 'store']);
         Route::get('sales/{id}', [SaleController::class, 'show']);
         Route::put('sales/{id}', [SaleController::class, 'update']);
+        
 
         // raw material withdrawal records
         Route::get('raw-material-withdrawal-records', [RawMaterialWithdrawalRecordController::class, 'index']);

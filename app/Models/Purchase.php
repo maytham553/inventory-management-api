@@ -34,7 +34,7 @@ class Purchase extends Model
 
     public function rawMaterials()
     {
-        return $this->belongsToMany(RawMaterial::class)->withPivot('quantity', 'subtotal', 'total', 'unit_price', 'discount_amount', 'discount_percentage');
+        return $this->belongsToMany(RawMaterial::class)->withPivot('quantity', 'subtotal', 'total', 'unit_price', 'discount_amount', 'discount_percentage', 'cost');
     }
 
     public function supplierTransaction()

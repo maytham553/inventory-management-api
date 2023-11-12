@@ -25,7 +25,7 @@ class SupplierFactory extends Factory
             'phone' => $this->faker->phoneNumber,
             'governorate_id' => $governorateId,
             'address' => $this->faker->address,
-            'balance' => $this->faker->randomFloat(4, 0, 1000), // Adjust the range as needed
+            'balance' => $this->faker->numberBetween(0, 1000), 
             'note' => $this->faker->text,
         ];
     }

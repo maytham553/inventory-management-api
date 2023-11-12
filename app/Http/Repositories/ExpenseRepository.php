@@ -13,10 +13,23 @@ class ExpenseRepository
     {
         $this->expense = $expense;
     }
+    
 
-    public function index()
+    public function index($search)
     {
+        if ($search) {
+            return $this->expense::where('id', 'like', "%$search%")
+                ->orWhere('title', 'like', "%$search%")
+                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 ELSE 3 END")
+                ->paginate(15);
+        }
         return $this->expense::orderBy('id', 'desc')->paginate(15);
+    }
+
+    
+    public function search($search)
+    {
+        return $this->expense::where('id', $search)->orWhere('title', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate(15);
     }
 
     public function indexByUser($userId)

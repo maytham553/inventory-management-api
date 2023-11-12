@@ -21,7 +21,7 @@ class RawMaterialFactory extends Factory
             'code' => $this->faker->unique()->optional()->numerify('RM###'),
             'barcode' => $this->faker->unique()->optional()->ean13(),
             'quantity' => $this->faker->numberBetween(0, 100),
-            'cost' => $this->faker->randomFloat(2, 5, 500),
+            'cost' => $this->faker->numberBetween(0, 1000),
             'note' => $this->faker->optional()->paragraph(),
         ];
     }

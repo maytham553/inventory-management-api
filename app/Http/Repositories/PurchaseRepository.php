@@ -22,6 +22,20 @@ class PurchaseRepository
         return $this->purchase::with('supplier')->orderBy('id', 'desc')->paginate(15);
     }
 
+
+    public function indexBySupplier($supplierId, $search)
+    {
+        if ($search) {
+            return $this->purchase::with('supplier', 'rawMaterials')
+                ->where('supplier_id', $supplierId)
+                ->where('id', 'like', "%$search%")
+                ->paginate(15);
+        }
+        return $this->purchase::with('supplier', 'rawMaterials')
+        ->where('supplier_id', $supplierId)
+        ->orderBy('id', 'desc')->paginate(15);
+    }
+
     public function find($id)
     {
         return $this->purchase::with('supplier', 'rawMaterials')->findOrFail($id);
@@ -37,6 +51,7 @@ class PurchaseRepository
             $purchase->rawMaterials()->sync($data['raw_materials'] ?? []);
             if ($data['status'] == 'confirmed') {
                 $this->storeSupplierTransaction($purchase);
+                $this->calculateRawMaterialsQuantity($purchase);
             }
             DB::commit();
             return $purchase;
@@ -54,6 +69,8 @@ class PurchaseRepository
             $this->updateSupplierTransaction($purchase, $data);
             $purchase->rawMaterials()->sync($data['raw_materials'] ?? []);
             $purchase->update($data);
+            $purchase->refresh();
+            $this->calculateRawMaterialsQuantity($purchase);
             DB::commit();
             return $purchase;
         } catch (\Throwable $th) {
@@ -81,7 +98,7 @@ class PurchaseRepository
             $supplierTransaction = $purchase->supplierTransaction;
             $this->supplierTransactionRepository->update($supplierTransaction, [
                 'amount' => $newTotal,
-            ]);;
+            ]);
         }
     }
 
@@ -105,6 +122,15 @@ class PurchaseRepository
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
+        }
+    }
+
+    private function calculateRawMaterialsQuantity(Purchase $purchase)
+    {
+        $rawMaterials = $purchase->rawMaterials;
+        foreach ($rawMaterials as $rawMaterial) {
+            $rawMaterial->quantity += $rawMaterial->pivot->quantity;
+            $rawMaterial->save();
         }
     }
 

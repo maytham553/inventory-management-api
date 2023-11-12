@@ -21,10 +21,10 @@ class PurchaseFactory extends Factory
         return [
             'user_id' => User::factory(),
             'supplier_id' => Supplier::factory(),
-            'subtotal_amount' => $this->faker->randomFloat(2, 10, 1000),
-            'total_amount' => $this->faker->randomFloat(2, 10, 1000),
-            'discount_amount' => $this->faker->randomFloat(2, 0, 100),
-            'discount_percentage' => $this->faker->randomFloat(2, 0, 100),
+            'subtotal_amount' => $this->faker->numberBetween(0, 1000),
+            'total_amount' =>$this->faker->numberBetween(0, 1000),
+            'discount_amount' => $this->faker->numberBetween(0, 1000),
+            'discount_percentage' => $this->faker->numberBetween(0, 1000),
             'status' => $this->faker->randomElement(['pending', 'confirmed', 'cancelled']),
             'note' => $this->faker->text,
         ];

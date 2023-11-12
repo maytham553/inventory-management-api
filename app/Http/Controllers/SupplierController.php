@@ -17,7 +17,8 @@ class SupplierController extends Controller
     public function index()
     {
         try {
-            $suppliers = $this->supplierRepository->index();
+            $search = request()->search;
+            $suppliers = $this->supplierRepository->index($search);
             return response()->success($suppliers, 'Suppliers retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
@@ -86,7 +87,8 @@ class SupplierController extends Controller
         try {
             $supplier = $this->supplierRepository->find($id);
             $this->supplierRepository->reCalculateBalance($supplier);
-            return response()->success($supplier, 'Supplier balance recalculated successfully', 200);
+            $balance = $supplier->balance;
+            return response()->success($balance, 'Supplier balance recalculated successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
         }
