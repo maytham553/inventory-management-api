@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->foreignId('governorate_id')->constrained('governorates')->onDelete('cascade');
             $table->string('address');
-            $table->decimal('balance', 20 )->default(0);
+            $table->bigInteger('balance')->default(0);
             $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();

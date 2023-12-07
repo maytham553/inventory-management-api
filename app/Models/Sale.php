@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Sale extends Model
 {
     use HasFactory , SoftDeletes;
+    protected $hidden = ['profit'];
+
 
     protected $fillable = [
         'user_id',
@@ -19,6 +21,9 @@ class Sale extends Model
         'discount_amount',
         'status',
         'note',
+        'previous_balance',
+        'driver_name',
+        'profit',
     ];
 
     public function user()

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('type', ['credit', 'debit']);
-            $table->decimal('amount', 20 );
+            $table->bigInteger('amount');
             $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();

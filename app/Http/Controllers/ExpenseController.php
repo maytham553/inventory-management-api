@@ -51,7 +51,7 @@ class ExpenseController extends Controller
             $data = $request->validate([
                 'title' => 'required|string',
                 'description' => 'nullable|string',
-                'amount' => 'required|numeric|min:1',
+                'amount' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             ]);
             $data['user_id'] = auth()->user()->id;
             $expense = $this->expenseRepository->store($data);
@@ -67,7 +67,7 @@ class ExpenseController extends Controller
             $data = $request->validate([
                 'title' => 'nullable|string',
                 'description' => 'nullable|string',
-                'amount' => 'nullable|numeric|min:1',
+                'amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             ]);
             $expense = $this->expenseRepository->find($request->id);
             $expense = $this->expenseRepository->update($expense, $data);

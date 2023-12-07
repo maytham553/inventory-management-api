@@ -31,9 +31,9 @@ class ProductController extends Controller
             'name' => 'required|string|max:50',
             'code' => 'required|string|unique:products,code',
             'barcode' => 'required|string|unique:products,barcode',
-            'quantity' => 'required|numeric',
-            'price' => 'required|numeric',
-            'cost' => 'required|numeric',
+            'quantity' => 'required|numeric|max:2147483647|min:-2147483648',
+            'price' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'cost' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'note' => 'nullable|string',
         ]);
         try {
@@ -60,9 +60,9 @@ class ProductController extends Controller
             'name' => 'nullable|string|max:50',
             'code' => 'nullable|string|unique:products,code,' . $id,
             'barcode' => 'nullable|string|unique:products,barcode,' . $id,
-            'quantity' => 'nullable|numeric',
-            'price' => 'nullable|numeric',
-            'cost' => 'nullable|numeric',
+            'quantity' => 'nullable|numeric|max:2147483647|min:-2147483648',
+            'price' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'cost' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'note' => 'nullable|string',
         ]);
         try {

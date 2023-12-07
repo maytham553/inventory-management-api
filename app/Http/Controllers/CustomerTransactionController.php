@@ -40,7 +40,7 @@ class CustomerTransactionController extends Controller
     {
         $data = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'amount' => 'required|numeric|max:9999999999999999.9999',
+            'amount' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'type' => 'required|in:credit,debit',
             'note' => 'nullable|string',
         ]);
@@ -67,7 +67,7 @@ class CustomerTransactionController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'amount' => 'nullable|numeric|max:9999999999999999.9999',
+            'amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'type' => 'nullable|in:credit,debit',
             'note' => 'nullable|string',
         ]);

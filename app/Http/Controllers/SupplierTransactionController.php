@@ -38,7 +38,7 @@ class SupplierTransactionController extends Controller
     {
         $data = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'amount' => 'required|numeric|max:9999999999999999.9999',
+            'amount' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'type' => 'required|in:credit,debit',
             'note' => 'nullable|string',
         ]);
@@ -64,7 +64,7 @@ class SupplierTransactionController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'amount' => 'nullable|numeric|max:9999999999999999.9999',
+            'amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'type' => 'nullable|in:credit,debit',
             'note' => 'nullable|string',
         ]);

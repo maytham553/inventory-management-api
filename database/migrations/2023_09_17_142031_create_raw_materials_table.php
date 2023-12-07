@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('code')->unique()->nullable();
             $table->string('barcode')->unique()->nullable();
             $table->integer('quantity')->default(0);
-            $table->decimal('cost', 10 )->default(0);
+            $table->bigInteger('cost')->default(0);
             $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();

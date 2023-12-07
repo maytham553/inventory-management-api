@@ -49,7 +49,7 @@ class RawMaterialWithdrawalRecordController extends Controller
         try {
             $data = $request->validate([
                 'raw_material_id' => 'required|exists:raw_materials,id',
-                'quantity' => 'required|numeric|min:1',
+                'quantity' => 'required|numeric|min:1|max:2147483647',
                 'note' => 'nullable|string',
             ]);
             $data['user_id'] = auth()->user()->id;
@@ -66,7 +66,7 @@ class RawMaterialWithdrawalRecordController extends Controller
             $data = $request->validate([
                 'raw_material_id' => 'nullable|exists:raw_materials,id',
                 'user_id' => 'nullable|exists:users,id',
-                'quantity' => 'nullable|numeric|min:1',
+                'quantity' => 'nullable|numeric|min:1|max:2147483647',
                 'note' => 'nullable|string',
             ]);
             $data['user_id'] = auth()->user()->id;

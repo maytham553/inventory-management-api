@@ -33,14 +33,16 @@ class SaleController extends Controller
             'discount_amount' => 'nullable|numeric|max:9999999999',
             'status' => 'required|in:pending,confirmed,cancelled',
             'note' => 'nullable|string',
+            'previous_balance' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'driver_name' => 'nullable|string',
             'products' => 'required|array',
             'products.*.product_id' => 'required|distinct|exists:products,id',
-            'products.*.quantity' => 'required|numeric|max:999999999999|min:1',
-            'products.*.subtotal' => 'required|numeric|max:999999999999',
-            'products.*.total' => 'required|numeric|max:999999999999',
-            'products.*.unit_price' => 'required|numeric|max:999999999999',
-            'products.*.discount_amount' => 'nullable|numeric|max:9999999999',
-            'raw_materials.*.cost' => 'required|numeric',
+            'products.*.quantity' => 'required|numeric|max:2147483647|min:1',
+            'products.*.subtotal' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.total' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.unit_price' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.discount_amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.cost' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
         ]);
         $data['user_id'] = auth()->user()->id;
         try {
@@ -65,19 +67,21 @@ class SaleController extends Controller
     {
         $data = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
-            'subtotal_amount' => 'nullable|numeric|max:999999999999',
-            'total_amount' => 'nullable|numeric|max:999999999999',
-            'discount_amount' => 'nullable|numeric|max:9999999999',
+            'subtotal_amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'total_amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'discount_amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'status' => 'nullable|in:pending,confirmed,cancelled',
             'note' => 'nullable|string',
+            'driver_name' => 'nullable|string',
+            'previous_balance' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|numeric|max:999999999999|min:1',
-            'products.*.subtotal' => 'required|numeric|max:999999999999',
-            'products.*.total' => 'required|numeric|max:999999999999',
-            'products.*.unit_price' => 'required|numeric|max:999999999999',
-            'products.*.discount_amount' => 'required|numeric|max:9999999999',
-            'raw_materials.*.cost' => 'required|numeric',
+            'products.*.quantity' => 'required|numeric|max:2147483647|min:1',
+            'products.*.subtotal' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.total' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.unit_price' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'products.*.discount_amount' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
+            'raw_materials.*.cost' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
         ]);
         $data['user_id'] = auth()->user()->id;
         try {

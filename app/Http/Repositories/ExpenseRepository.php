@@ -25,6 +25,21 @@ class ExpenseRepository
         }
         return $this->expense::orderBy('id', 'desc')->paginate(15);
     }
+  
+    public function indexByDate($from = null, $to = null)
+    {
+        $query = $this->expense::query();
+
+        if ($from !== null) {
+            $query->where('updated_at', '>=', $from);
+        }
+
+        if ($to !== null) {
+            $query->where('updated_at', '<=', $to);
+        }
+
+        return $query->orderBy('id', 'desc')->get();
+    }
 
     
     public function search($search)

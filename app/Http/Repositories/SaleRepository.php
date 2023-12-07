@@ -18,7 +18,22 @@ class SaleRepository
 
     public function index()
     {
-        return $this->sale::with('customer')->orderBy('id', 'desc')->paginate(15);
+        return $this->sale::with('customer', 'products')->get();
+    }
+
+    public function indexByDate($from = null, $to = null)
+    {
+        $query = $this->sale::query();
+
+        if ($from !== null) {
+            $query->where('updated_at', '>=', $from);
+        }
+
+        if ($to !== null) {
+            $query->where('updated_at', '<=', $to);
+        }
+
+        return $query->orderBy('id', 'desc')->get();
     }
 
     public function find($id)
@@ -26,16 +41,17 @@ class SaleRepository
         return $this->sale::with('customer', 'products')->findOrFail($id);
     }
 
-    // store 
     public function store(array $data)
     {
+        $isConfirmed = $data['status'] === 'confirmed';
+
+
         DB::beginTransaction();
+
         try {
-            $sale = $this->sale::create($data);
-            $sale->products()->sync($data['products'] ?? []);
-            if ($data['status'] == 'confirmed') {
-                $this->storeCustomerTransaction($sale);
-                $this->calculateProductsQuantity($sale);
+            $sale = $this->createSale($data, $isConfirmed);
+            if ($isConfirmed) {
+                $this->handleConfirmedSale($sale);
             }
             DB::commit();
             return $sale;
@@ -44,6 +60,36 @@ class SaleRepository
             throw $th;
         }
     }
+
+    private function createSale(array &$data, bool $isConfirmed): Sale
+    {
+        if (!$isConfirmed) {
+            $data['previous_balance'] = null;
+        } else {
+            $this->calculateProfit($data);
+        }
+
+        $sale = $this->sale::create($data);
+        $sale->products()->sync($data['products'] ?? []);
+
+        return $sale;
+    }
+
+    private function calculateProfit(array &$data)
+    {
+        $totalCost = array_reduce($data['products'], function ($carry, $product) {
+            return $carry + $product['cost'] * $product['quantity'];
+        }, 0);
+
+        $data['profit'] = $data['total_amount'] - $totalCost;
+    }
+
+    private function handleConfirmedSale(Sale $sale)
+    {
+        $this->storeCustomerTransaction($sale);
+        $this->calculateProductsQuantity($sale);
+    }
+
 
     // update
     public function update(Sale $sale, array $data)

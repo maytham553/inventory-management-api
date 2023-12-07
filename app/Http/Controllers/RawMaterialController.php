@@ -30,8 +30,8 @@ class RawMaterialController extends Controller
             'name' => 'required|string|max:50',
             'code' => 'required|string|unique:raw_materials,code',
             'barcode' => 'required|string|unique:raw_materials,barcode',
-            'quantity' => 'required|numeric',
-            'cost' => 'required|numeric',
+            'quantity' => 'required|numeric|max:2147483647|min:-2147483648',
+            'cost' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'note' => 'nullable|string',
         ]);
         try {
@@ -58,8 +58,8 @@ class RawMaterialController extends Controller
             'name' => 'nullable|string|max:50',
             'code' => 'nullable|string|unique:raw_materials,code,' . $id,
             'barcode' => 'nullable|string|unique:raw_materials,barcode,' . $id,
-            'quantity' => 'required|numeric',
-            'cost' => 'nullable|numeric',
+            'quantity' => 'required|numeric|max:2147483647|min:-2147483648',
+            'cost' => 'nullable|max:9223372036854775807|min:-9223372036854775808',
             'note' => 'nullable|string',
         ]);
         try {
