@@ -63,6 +63,7 @@ class UserController extends Controller
             'type' => 'required|in:Admin,User',
         ]);
         try {
+            $data['password'] = bcrypt($data['password']);
             $user = $this->userRepository->store($data);
             return response()->success($user, 'User created successfully', 201);
         } catch (\Throwable $th) {
@@ -80,6 +81,9 @@ class UserController extends Controller
         ]);
         try {
             $user = $this->userRepository->find($id);
+            if (isset($data['password'])) {
+                $data['password'] = bcrypt($data['password']);
+            }
             $updatedUser = $this->userRepository->update($user, $data);
             return response()->success($updatedUser, 'User updated successfully', 200);
         } catch (\Throwable $th) {
@@ -98,6 +102,9 @@ class UserController extends Controller
         try {
             $userId = auth()->user()->id;
             $user = $this->userRepository->find($userId);
+            if (isset($data['password'])) {
+                $data['password'] = bcrypt($data['password']);
+            }
             $updatedUser = $this->userRepository->update($user, $data);
             return response()->success($updatedUser, 'User updated successfully', 200);
         } catch (\Throwable $th) {
