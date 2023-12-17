@@ -33,7 +33,6 @@ class SaleController extends Controller
             'discount_amount' => 'nullable|numeric|max:9999999999',
             'status' => 'required|in:pending,confirmed,cancelled',
             'note' => 'nullable|string',
-            'previous_balance' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'driver_name' => 'nullable|string',
             'products' => 'required|array',
             'products.*.product_id' => 'required|distinct|exists:products,id',
@@ -42,11 +41,12 @@ class SaleController extends Controller
             'products.*.total' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products.*.unit_price' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products.*.discount_amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
-            'products.*.cost' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
         ]);
         $data['user_id'] = auth()->user()->id;
         try {
             $sale = $this->saleRepository->store($data);
+            $sale->products->makeHidden('cost');
+            $sale->products->makeHidden('pivot');
             return response()->success($sale, 'Sale created successfully', 201);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), 400);
@@ -73,7 +73,6 @@ class SaleController extends Controller
             'status' => 'nullable|in:pending,confirmed,cancelled',
             'note' => 'nullable|string',
             'driver_name' => 'nullable|string',
-            'previous_balance' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|numeric|max:2147483647|min:1',
@@ -81,7 +80,6 @@ class SaleController extends Controller
             'products.*.total' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products.*.unit_price' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products.*.discount_amount' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
-            'raw_materials.*.cost' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
         ]);
         $data['user_id'] = auth()->user()->id;
         try {
@@ -90,6 +88,8 @@ class SaleController extends Controller
                 return response()->error('Sale status is confirmed, you can not update it', 400);
             }
             $sale = $this->saleRepository->update($sale, $data);
+            $sale->products->makeHidden('cost');
+            $sale->products->makeHidden('pivot');
             return response()->success($sale, 'Sale updated successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);

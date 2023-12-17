@@ -2,7 +2,7 @@
 
 namespace App\Http\Repositories;
 
-use App\Models\CustomerTransaction;
+use App\Models\Customer;
 use App\Models\Sale;
 use Illuminate\Support\Facades\DB;
 
@@ -10,10 +10,12 @@ class SaleRepository
 {
     private Sale $sale;
     private CustomerTransactionRepository $customerTransactionRepository;
-    public function __construct(Sale $sale, CustomerTransactionRepository $customerTransactionRepository)
+    private ProductRepository $productRepository;
+    public function __construct(Sale $sale, CustomerTransactionRepository $customerTransactionRepository, ProductRepository $productRepository)
     {
         $this->sale = $sale;
         $this->customerTransactionRepository = $customerTransactionRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function index()
@@ -44,13 +46,15 @@ class SaleRepository
     public function store(array $data)
     {
         $isConfirmed = $data['status'] === 'confirmed';
-
-
         DB::beginTransaction();
-
         try {
-            $sale = $this->createSale($data, $isConfirmed);
-            if ($isConfirmed) {
+            if (!$isConfirmed) {
+                $data['previous_balance'] = 0;
+                $sale = $this->createSale($data, $isConfirmed);
+            } else {
+                $this->calculateProfit($data);
+                $data['previous_balance'] = Customer::find($data['customer_id'])->balance;
+                $sale = $this->createSale($data, $isConfirmed);
                 $this->handleConfirmedSale($sale);
             }
             DB::commit();
@@ -61,26 +65,20 @@ class SaleRepository
         }
     }
 
-    private function createSale(array &$data, bool $isConfirmed): Sale
+    private function createSale(array &$data): Sale
     {
-        if (!$isConfirmed) {
-            $data['previous_balance'] = null;
-        } else {
-            $this->calculateProfit($data);
-        }
-
         $sale = $this->sale::create($data);
         $sale->products()->sync($data['products'] ?? []);
-
         return $sale;
     }
 
     private function calculateProfit(array &$data)
     {
-        $totalCost = array_reduce($data['products'], function ($carry, $product) {
-            return $carry + $product['cost'] * $product['quantity'];
-        }, 0);
-
+        $totalCost = 0;
+        foreach ($data['products'] as $product) {
+            $fetchedProduct = $this->productRepository->find($product['product_id']);
+            $totalCost += $fetchedProduct->cost * $product['quantity'];
+        }
         $data['profit'] = $data['total_amount'] - $totalCost;
     }
 
@@ -96,11 +94,15 @@ class SaleRepository
     {
         DB::beginTransaction();
         try {
-            $this->updateCustomerTransaction($sale, $data);
-            $sale->products()->sync($data['products'] ?? []);
-            $sale->update($data);
-            if ($data['status'] == 'confirmed') {
-                $this->calculateProductsQuantity($sale);
+            $isConfirmed = $data['status'] === 'confirmed';
+            if ($isConfirmed) {
+                $this->calculateProfit($data);
+                $data['previous_balance'] = Customer::find($data['customer_id'])->balance;
+                $this->updateSale($sale, $data);
+                $sale->refresh();
+                $this->handleConfirmedSale($sale);
+            } else {
+                $sale = $this->updateSale($sale, $data);
             }
             DB::commit();
             return $sale;
@@ -110,28 +112,36 @@ class SaleRepository
         }
     }
 
-    // update customer transaction 
-    private function updateCustomerTransaction(Sale $sale, array $data)
+    // update sale 
+    private function updateSale(Sale $sale, array $data)
     {
-        $oldTotal = $sale->total_amount;
-        $newTotal = $data['total_amount'] ?? $sale->total_amount;
-        $newStatus = $data['status'] ?? $sale->status;
-        $oldStatus = $sale->status;
-        $isStatusChanged = $oldStatus != $newStatus;
-        $isTotalChanged = $oldTotal != $newTotal;
-
-        if ($isStatusChanged && $oldStatus == 'confirmed') {
-            $customerTransaction = $sale->customerTransaction;
-            $this->destroyCustomerTransaction($sale);
-        } else if ($isStatusChanged && $newStatus == 'confirmed') {
-            $this->storeCustomerTransaction($sale);
-        } else if ($isTotalChanged && $isTotalChanged && $newStatus == 'confirmed') {
-            $customerTransaction = $sale->customerTransaction;
-            $this->customerTransactionRepository->update($customerTransaction, [
-                'amount' => $newTotal,
-            ]);
-        }
+        $sale->update($data);
+        $sale->products()->sync($data['products'] ?? []);
     }
+
+
+    // update customer transaction 
+    // private function updateCustomerTransaction(Sale $sale, array $data)
+    // {
+    //     $oldTotal = $sale->total_amount;
+    //     $newTotal = $data['total_amount'] ?? $sale->total_amount;
+    //     $newStatus = $data['status'] ?? $sale->status;
+    //     $oldStatus = $sale->status;
+    //     $isStatusChanged = $oldStatus != $newStatus;
+    //     $isTotalChanged = $oldTotal != $newTotal;
+
+    //     if ($isStatusChanged && $oldStatus == 'confirmed') {
+    //         $customerTransaction = $sale->customerTransaction;
+    //         $this->destroyCustomerTransaction($sale);
+    //     } else if ($isStatusChanged && $newStatus == 'confirmed') {
+    //         $this->storeCustomerTransaction($sale);
+    //     } else if ($isStatusChanged && $isTotalChanged && $newStatus == 'confirmed') {
+    //         $customerTransaction = $sale->customerTransaction;
+    //         $this->customerTransactionRepository->update($customerTransaction, [
+    //             'amount' => $newTotal,
+    //         ]);
+    //     }
+    // }
 
     // store customer transaction
     private function storeCustomerTransaction(Sale $sale)

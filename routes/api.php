@@ -99,6 +99,8 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::get('raw-material-withdrawal-records/raw-material/{id}', [RawMaterialWithdrawalRecordController::class, 'indexByRawMaterial']);
     Route::put('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'update']);
     Route::delete('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'destroy']);
+  
+    Route::get('products', [ProductController::class, 'index']);
 
     // expenses
     Route::post('expenses', [ExpenseController::class, 'store']);
@@ -118,7 +120,6 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::post('logout/all', [AuthController::class, 'logoutFromAllDevices']);
 
         // products
-        Route::get('products', [ProductController::class, 'index']);
         Route::post('products', [ProductController::class, 'store']);
         Route::get('products/{id}', [ProductController::class, 'show']);
         Route::put('products/{id}', [ProductController::class, 'update']);
