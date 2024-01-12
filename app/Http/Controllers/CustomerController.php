@@ -36,6 +36,20 @@ class CustomerController extends Controller
         }
     }
 
+    // customer transactions 
+    public function customerTransactions($id)
+    {
+        try {
+            $from = request()->from;
+            $to = request()->to;
+            $customerTransactions = $this->customerRepository->customerTransactions($id, $from, $to);
+            return response()->success($customerTransactions, 'Customer transactions retrieved successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+
+    }
+
 
     public function store(Request $request)
     {

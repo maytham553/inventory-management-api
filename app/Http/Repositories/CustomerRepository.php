@@ -29,6 +29,23 @@ class CustomerRepository
         return $this->customer::orderBy('id', 'desc')->paginate(15);
     }
 
+    public function customerTransactions($id, $from = null, $to = null)
+    {
+        $customer = Customer::findOrFail($id);
+
+        $query = $customer->customerTransactions()->orderBy('created_at', 'desc');
+
+        if ($from !== null) {
+            $query->where('created_at', '>=', $from);
+        }
+
+        if ($to !== null) {
+            $query->where('created_at', '<=', $to);
+        }
+        return $query->paginate(200);
+    }
+
+
     public function indexByGovernorate($id)
     {
         return $this->customer::where('governorate_id', $id)->orderBy('id', 'desc')->paginate(15);

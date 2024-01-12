@@ -61,6 +61,7 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::put('customers/{id}/re-calculate-balance', [CustomerController::class, 'reCalculateBalance']);
     Route::delete('customers/{id}', [CustomerController::class, 'destroy']);
     Route::get('customers/{id}/sales', [CustomerController::class, 'getSales']);
+    Route::get('customers/{id}/transactions', [CustomerController::class, 'customerTransactions']);
 
     // supplier transactions
     Route::get('supplier-transactions', [SupplierTransactionController::class, 'index']);

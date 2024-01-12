@@ -97,7 +97,7 @@ class SaleRepository
             $isConfirmed = $data['status'] === 'confirmed';
             if ($isConfirmed) {
                 $this->calculateProfit($data);
-                $data['previous_balance'] = Customer::find($data['customer_id'])->balance;
+                $data['previous_balance'] = Customer::find($sale['customer_id'])->balance;
                 $this->updateSale($sale, $data);
                 $sale->refresh();
                 $this->handleConfirmedSale($sale);
@@ -117,33 +117,10 @@ class SaleRepository
     {
         $sale->update($data);
         $sale->products()->sync($data['products'] ?? []);
+        return $sale;
     }
 
 
-    // update customer transaction 
-    // private function updateCustomerTransaction(Sale $sale, array $data)
-    // {
-    //     $oldTotal = $sale->total_amount;
-    //     $newTotal = $data['total_amount'] ?? $sale->total_amount;
-    //     $newStatus = $data['status'] ?? $sale->status;
-    //     $oldStatus = $sale->status;
-    //     $isStatusChanged = $oldStatus != $newStatus;
-    //     $isTotalChanged = $oldTotal != $newTotal;
-
-    //     if ($isStatusChanged && $oldStatus == 'confirmed') {
-    //         $customerTransaction = $sale->customerTransaction;
-    //         $this->destroyCustomerTransaction($sale);
-    //     } else if ($isStatusChanged && $newStatus == 'confirmed') {
-    //         $this->storeCustomerTransaction($sale);
-    //     } else if ($isStatusChanged && $isTotalChanged && $newStatus == 'confirmed') {
-    //         $customerTransaction = $sale->customerTransaction;
-    //         $this->customerTransactionRepository->update($customerTransaction, [
-    //             'amount' => $newTotal,
-    //         ]);
-    //     }
-    // }
-
-    // store customer transaction
     private function storeCustomerTransaction(Sale $sale)
     {
         DB::beginTransaction();
@@ -153,7 +130,7 @@ class SaleRepository
                 'customer_id' => $sale->customer_id,
                 'amount' => $sale->total_amount,
                 'type' => 'debit',
-                'note' => 'sale ID: ' . $sale->id . ' - customer name: ' . $sale->customer->name,
+                'note' => 'رقم القائمة: ' . $sale->id . ' - اسم الزبون: ' . $sale->customer->name,
             ]);
             // Store transaction id in sale
             $sale->update([
