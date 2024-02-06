@@ -141,7 +141,8 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
 
         // report
-        Route::get('reports/profit', [ReportController::class, 'profit']);
+        Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
+        Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
     });
 
     

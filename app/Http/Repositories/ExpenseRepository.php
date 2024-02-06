@@ -4,6 +4,7 @@ namespace App\Http\Repositories;
 
 use App\Models\Expense;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ExpenseRepository
 {
@@ -13,7 +14,7 @@ class ExpenseRepository
     {
         $this->expense = $expense;
     }
-    
+
 
     public function index($search)
     {
@@ -25,23 +26,25 @@ class ExpenseRepository
         }
         return $this->expense::orderBy('id', 'desc')->paginate(15);
     }
-  
+    
     public function indexByDate($from = null, $to = null)
     {
         $query = $this->expense::query();
 
         if ($from !== null) {
-            $query->where('updated_at', '>=', $from);
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('updated_at', '>=', $fromDate);
         }
 
         if ($to !== null) {
-            $query->where('updated_at', '<=', $to);
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('updated_at', '<=', $toDate);
         }
 
         return $query->orderBy('id', 'desc')->get();
     }
 
-    
+
     public function search($search)
     {
         return $this->expense::where('id', $search)->orWhere('title', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate(15);

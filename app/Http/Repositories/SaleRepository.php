@@ -4,6 +4,7 @@ namespace App\Http\Repositories;
 
 use App\Models\Customer;
 use App\Models\Sale;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class SaleRepository
@@ -28,11 +29,13 @@ class SaleRepository
         $query = $this->sale::query();
 
         if ($from !== null) {
-            $query->where('updated_at', '>=', $from);
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('updated_at', '>=', $fromDate);
         }
 
         if ($to !== null) {
-            $query->where('updated_at', '<=', $to);
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('updated_at', '<=', $toDate);
         }
 
         return $query->orderBy('id', 'desc')->get();
@@ -142,6 +145,14 @@ class SaleRepository
             DB::rollBack();
             throw $th;
         }
+    }
+
+    private function updateCustomerTransaction(Sale $sale)
+    {
+        // delete customer transaction 
+        $customerTransaction = $sale->customerTransaction;
+
+        $this->customerTransactionRepository->destroy($customerTransaction);
     }
 
     private function calculateProductsQuantity(Sale $sale)
