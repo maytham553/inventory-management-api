@@ -45,7 +45,7 @@ class CustomerRepository
             $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
             $query->where('created_at', '<=', $toDate);
         }
-        
+
         return $query->paginate(200);
     }
 
