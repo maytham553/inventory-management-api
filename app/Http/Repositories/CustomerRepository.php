@@ -34,7 +34,7 @@ class CustomerRepository
     {
         $customer = Customer::findOrFail($id);
 
-        $query = $customer->customerTransactions()->orderBy('created_at', 'desc');
+        $query = $customer->customerTransactions()->orderBy('created_at');
 
         if ($from !== null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
