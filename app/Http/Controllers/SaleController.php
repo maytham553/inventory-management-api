@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Repositories\ProductRepository;
 use App\Http\Repositories\SaleRepository;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class SaleController extends Controller
+class   SaleController extends Controller
 {
     private SaleRepository $saleRepository;
 
@@ -19,6 +21,46 @@ class SaleController extends Controller
         try {
             $sales = $this->saleRepository->index();
             return response()->success($sales, 'Sales retrieved successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
+    public function indexByDateWithProductsAndCustomer(Request $request)
+    {
+        $data = $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date',
+        ]);
+        $from = $data['from'] ?? null;
+        $to = $data['to'] ?? null;
+
+        try {
+            $sales = $this->saleRepository->indexByDateWithProductsAndCustomer($from, $to);
+            $formattedSales = [];
+            foreach ($sales as $sale) {
+                $formattedSale = [
+                    'total_amount' => $sale->total_amount,
+                    'previous_balance' => $sale->previous_balance,
+                    'driver_name' => $sale->driver_name,
+                    'updated_at' => $sale->updated_at,
+                    'customer' => [
+                        'id' => $sale->customer->id,
+                        'name' => $sale->customer->name,
+                        'phone' => $sale->customer->phone,
+                    ],
+                    'products' => $sale->products->map(function ($product) {
+                        return [
+                            'name' => $product->name,
+                            'quantity' => $product->pivot->quantity,
+                            'unit_price' => $product->pivot->unit_price,
+                            'total_amount' => $product->pivot->total,
+                        ];
+                    }),
+                ];
+                $formattedSales[] = $formattedSale;
+            }
+            return response()->success($formattedSales, 'Sales retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
         }
@@ -51,6 +93,42 @@ class SaleController extends Controller
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), 400);
         }
+    }
+
+    // update every sale product cost and profit with the current product cost 
+    public function updateSaleProductsCostAndProfit()
+    {
+        // get all sales
+        $sales = $this->saleRepository->index();
+        $products = Product::all();
+        foreach ($sales as $sale) {
+            foreach ($sale->products as $product) {
+                $product = $products->find($product->id);
+                $sale->products()->updateExistingPivot($product->id, [
+                    'cost' => $product->cost,
+                ]);
+            }
+        }
+        $this->updateProfit();
+        return response()->success($sales, 'Sales products cost and profit updated successfully', 200);
+    }
+
+    // recaclulate the profit of every sale
+    public function updateProfit()
+    {
+        // get all sales
+        $sales = $this->saleRepository->index();
+        foreach ($sales as $sale) {
+            // caclulate the profit of sale 
+            $profit = 0;
+            foreach ($sale->products as $product) {
+                $profit += ($product->pivot->total - ($product->pivot->cost * $product->pivot->quantity));
+            }
+            $sale->update([
+                'profit' => $profit,
+            ]);
+        }
+        return response()->success($sales, 'Sales profit recalculated successfully', 200);
     }
 
     public function show($id)

@@ -3,6 +3,7 @@
 namespace App\Http\Repositories;
 
 use App\Models\Customer;
+use Carbon\Carbon;
 
 class CustomerRepository
 {
@@ -36,12 +37,15 @@ class CustomerRepository
         $query = $customer->customerTransactions()->orderBy('created_at', 'desc');
 
         if ($from !== null) {
-            $query->where('created_at', '>=', $from);
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($to !== null) {
-            $query->where('created_at', '<=', $to);
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('created_at', '<=', $toDate);
         }
+        
         return $query->paginate(200);
     }
 

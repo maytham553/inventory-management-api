@@ -41,6 +41,24 @@ class SaleRepository
         return $query->orderBy('id', 'desc')->get();
     }
 
+    // index by date with products
+    public function indexByDateWithProductsAndCustomer($from = null, $to = null)
+    {
+        $query = $this->sale::query();
+
+        if ($from !== null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('updated_at', '>=', $fromDate);
+        }
+
+        if ($to !== null) {
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('updated_at', '<=', $toDate);
+        }
+
+        return $query->with('products', 'customer')->where('status', 'confirmed')->orderBy('id', 'desc')->get();
+    }
+
     public function find($id)
     {
         return $this->sale::with('customer', 'products')->findOrFail($id);
@@ -67,6 +85,7 @@ class SaleRepository
             throw $th;
         }
     }
+    
 
     private function createSale(array &$data): Sale
     {

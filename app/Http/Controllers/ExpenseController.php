@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Repositories\ExpenseRepository;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
@@ -17,8 +19,10 @@ class ExpenseController extends Controller
     public function index()
     {
         $search = request()->search;
+        $from = request()->from;
+        $to = request()->to;
         try {
-            $expenses = $this->expenseRepository->index($search);
+            $expenses = $this->expenseRepository->index($search, $from, $to);
             return response()->success($expenses, 'Expenses retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
@@ -34,6 +38,49 @@ class ExpenseController extends Controller
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
         }
     }
+
+    public function printExpenses()
+    {
+        $search = request()->search;
+        $from = request()->from;
+        $to = request()->to;
+        $tempFile = tempnam(sys_get_temp_dir(), 'expenses') . '.xlsx';
+        $writer  = WriterEntityFactory::createXLSXWriter();
+        $writer->openToFile($tempFile);
+
+        try {
+            $expenses = $this->expenseRepository->indexWithoutPagination($search, $from, $to);
+            if ($to) {
+                $writer->addRow(WriterEntityFactory::createRowFromArray([]));
+            }
+            $writer->addRow(WriterEntityFactory::createRowFromArray(['ID', ' اسم المستخدم', 'العنون', 'الوصف', 'المبلغ', 'تاريخ الانشاء']));
+            foreach ($expenses as $expense) {
+                $writer->addRow(WriterEntityFactory::createRowFromArray([$expense->id, $expense->user->name,  $expense->title, $expense->description, $expense->amount, $expense->created_at->format('Y-m-d  H:i:s')]));
+            }
+            $writer->addRow(WriterEntityFactory::createRowFromArray(['', '', '', "", '']));
+            $writer->addRow(WriterEntityFactory::createRowFromArray(['المجموع الكلي', '',  $expenses->sum('amount'), "", '']));
+            $writer->addRow(WriterEntityFactory::createRowFromArray(['عدد الصرفيات', '',  $expenses->count(), "", '']));
+            if ($from) {
+                $writer->addRow(WriterEntityFactory::createRowFromArray(['تاريخ البداية', '',  $from, "", '']));
+            }
+            if ($to) {
+                $writer->addRow(WriterEntityFactory::createRowFromArray(['تاريخ النهاية', '',  $to, "", '']));
+            }
+            if ($search) {
+                $writer->addRow(WriterEntityFactory::createRowFromArray(['كلمة البحث', '',  $search, "", '']));
+            }
+
+            $writer->close();
+            return response()->download($tempFile, 'expenses.xlsx')->deleteFileAfterSend(true);
+        } catch (\Throwable $th) {
+            $writer->close();
+            return response()->error($th->getMessage());
+        }
+    }
+
+
+
+
 
     public function show($id)
     {

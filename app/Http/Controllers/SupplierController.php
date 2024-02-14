@@ -94,6 +94,18 @@ class SupplierController extends Controller
         }
     }
 
+    public function supplierTransactions($id)
+    {
+        try {
+            $from = request()->from;
+            $to = request()->to;
+            $supplierTransactions = $this->supplierRepository->supplierTransactions($id, $from, $to);
+            return response()->success($supplierTransactions, 'Supplier Transactions retrieved successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
     public function destroy($id)
     {
         try {

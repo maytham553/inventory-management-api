@@ -60,7 +60,7 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|unique:users|email',
             'password' => 'required|string|min:8',
-            'type' => 'required|in:Admin,User',
+            'type' => 'required|in:Admin,User,SupperAdmin',
         ]);
         try {
             $data['password'] = bcrypt($data['password']);
@@ -77,7 +77,7 @@ class UserController extends Controller
             'name' => 'string',
             'email' => 'email|unique:users,email,' . $id,
             'password' => 'string|min:8',
-            'type' => 'in:Admin,User',
+            'type' => 'in:Admin,User,SupperAdmin',
         ]);
         try {
             $user = $this->userRepository->find($id);
@@ -97,7 +97,7 @@ class UserController extends Controller
             'name' => 'string',
             'email' => 'email|unique:users,email,' . auth()->user()->id,
             'password' => 'string|min:8',
-            'type' => 'in:Admin,User',
+            'type' => 'in:Admin,User,SupperAdmin',
         ]);
         try {
             $userId = auth()->user()->id;

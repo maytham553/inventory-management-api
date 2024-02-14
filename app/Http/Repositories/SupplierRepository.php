@@ -3,6 +3,7 @@
 namespace App\Http\Repositories;
 
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SupplierRepository
@@ -30,19 +31,23 @@ class SupplierRepository
     }
 
 
-    // public function findWithPurchases($id, $search)
-    // {
-    //     if ($search) {
-    //         return $this->supplier::with(['purchases' => function ($query) {
-    //             $query->orderBy('id', 'desc')->paginate(15);
-    //         }, 'purchases.rawMaterials'])->whereHas('purchase', function ($query) use ($search) {
-    //             $query->where('id', 'like', "%$search%");
-    //         })->findOrFail($id);
-    //     }
-    //     return $this->supplier::with(['purchases' => function ($query) {
-    //         $query->orderBy('id', 'desc')->paginate(15);
-    //     }, 'purchases.rawMaterials'])->findOrFail($id);
-    // }
+    public function supplierTransactions($id, $from = null, $to = null)
+    {
+        $supplier = Supplier::findOrFail($id);
+
+        $query = $supplier->supplierTransactions()->orderBy('created_at', 'desc');
+
+        if ($from !== null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('created_at', '>=', $fromDate);
+        }
+
+        if ($to !== null) {
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('created_at', '<=', $toDate);
+        }
+        return $query->paginate(200);
+    }
 
 
     public function indexByGovernorate($id)

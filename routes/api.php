@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::put('suppliers/{id}', [SupplierController::class, 'update']);
     Route::put('suppliers/{id}/re-calculate-balance', [SupplierController::class, 'reCalculateBalance']);
     Route::delete('suppliers/{id}', [SupplierController::class, 'destroy']);
+    Route::get('suppliers/{id}/transactions', [SupplierController::class, 'supplierTransactions']);
 
     // customers
     Route::get('customers', [CustomerController::class, 'index']);
@@ -87,6 +88,7 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::put('purchases/{id}', [PurchaseController::class, 'update']);
 
     // sales
+    Route::get('sales/date/{from?}/{to?}', [SaleController::class, 'indexByDateWithProductsAndCustomer']);
     Route::get('sales', [SaleController::class, 'index']);
     Route::post('sales', [SaleController::class, 'store']);
     Route::get('sales/{id}', [SaleController::class, 'show']);
@@ -105,12 +107,14 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
 
     // expenses
     Route::post('expenses', [ExpenseController::class, 'store']);
+    // print expenses
+    Route::get('expenses/print', [ExpenseController::class, 'printExpenses']);
 
     // governrate return all 
     Route::get('governorates', [GovernorateController::class, 'index']);
 
 
-    Route::middleware(['checkUserType:Admin'])->group(function () {
+    Route::middleware(['checkUserType:Admin|SuperAdmin'])->group(function () {
 
         //User and Auth
         Route::get('users', [UserController::class, 'index']);
@@ -139,12 +143,15 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::get('expenses/{id}', [ExpenseController::class, 'show']);
         Route::put('expenses/{id}', [ExpenseController::class, 'update']);
         Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
-
-        // report
+    },
+     // super admin 
+     Route::middleware(['checkUserType:SuperAdmin'])->group(function () {
         Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
         Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
-    });
+    })
 
-    
-
+);
 });
+
+Route::put('sales/sss', [SaleController::class, 'updateSaleProductsCostAndProfit']);
+

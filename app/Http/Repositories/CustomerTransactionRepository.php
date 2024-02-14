@@ -3,6 +3,7 @@
 namespace App\Http\Repositories;
 
 use App\Models\CustomerTransaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -26,6 +27,25 @@ class CustomerTransactionRepository
     {
         return $this->customerTransaction::with('customer')->where('customer_id', $id)->orderBy('id', 'desc')->paginate(15);
     }
+
+    public function indexByDate($from = null, $to = null)
+    {
+        $query = $this->customerTransaction::query();
+
+        if ($from !== null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('updated_at', '>=', $fromDate);
+        }
+
+        if ($to !== null) {
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('updated_at', '<=', $toDate);
+        }
+
+        return $query->orderBy('id', 'desc')->get();
+    }
+
+
 
     public function find($id)
     {

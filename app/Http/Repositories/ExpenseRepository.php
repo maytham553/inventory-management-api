@@ -16,17 +16,50 @@ class ExpenseRepository
     }
 
 
-    public function index($search)
+    public function index($search, $from = null, $to = null)
     {
-        if ($search) {
-            return $this->expense::where('id', 'like', "%$search%")
-                ->orWhere('title', 'like', "%$search%")
-                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 ELSE 3 END")
-                ->paginate(15);
+        $expenses = $this->expense::query();
+
+        if ($from !== null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $expenses->where('updated_at', '>=', $fromDate);
         }
-        return $this->expense::orderBy('id', 'desc')->paginate(15);
+
+        if ($to !== null) {
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $expenses->where('updated_at', '<=', $toDate);
+        }
+
+        if ($search) {
+            $expenses->where('id', 'like', "%$search%")
+                ->orWhere('title', 'like', "%$search%")
+                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 ELSE 3 END");
+        }
+        return $expenses->orderBy('id', 'desc')->paginate(50);
     }
-    
+
+    public function indexWithoutPagination($search, $from = null, $to = null)
+    {
+        $expenses = $this->expense::query();
+
+        if ($from !== null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $expenses->where('updated_at', '>=', $fromDate);
+        }
+
+        if ($to !== null) {
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $expenses->where('updated_at', '<=', $toDate);
+        }
+
+        if ($search) {
+            $expenses->where('id', 'like', "%$search%")
+                ->orWhere('title', 'like', "%$search%")
+                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 ELSE 3 END");
+        }
+        return $expenses->orderBy('id', 'desc')->with('user')->get();
+    }
+
     public function indexByDate($from = null, $to = null)
     {
         $query = $this->expense::query();

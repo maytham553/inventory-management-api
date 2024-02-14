@@ -18,6 +18,10 @@ class CheckUserType
        
         $userType = auth('sanctum')->user()->type;
 
+        if ($type == 'SuperAdmin' && $userType != 'SuperAdmin') {
+            return response()->json(['message' => 'Access denied'], 403);
+        }
+
         if ($type == 'Admin' && $userType != 'Admin') {
             return response()->json(['message' => 'Access denied'], 403);
         }
