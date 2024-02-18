@@ -63,7 +63,7 @@ class ReportController extends Controller
             ];
             $formattedSales = $sales->map(function ($sale) {
                 return [
-                    'profit ' => $sale->profit,
+                    'profit' => $sale->profit,
                     'customer_name' =>  $sale->customer->name,
                     'user_name' => $sale->user->name,
                     'products' => $sale->products->map(function ($product) {
