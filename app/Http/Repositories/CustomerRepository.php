@@ -57,7 +57,9 @@ class CustomerRepository
 
     public function getSales(Customer $customer, $search)
     {
-        return $customer->sales()->with('products')->where('id', 'like', "%$search%")->orderBy('id', 'desc')->paginate(15);
+        return $customer->sales()->with(['products' => function ($query) {
+            $query->withTrashed();
+        }])->where('id', 'like', "%$search%")->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)
@@ -96,6 +98,7 @@ class CustomerRepository
 
     public function destroy(Customer $customer)
     {
+        // when delete customer delete all his 
         return $customer->delete();
     }
 }

@@ -66,7 +66,7 @@ class ReportController extends Controller
                     'profit' => $sale->profit,
                     'customer_name' =>  $sale->customer->name,
                     'user_name' => $sale->user->name,
-                    'products' => $sale->products->map(function ($product) {
+                    'products' => $sale->products()->withTrashed()->get()->map(function ($product) {
                         return [
                             'name' => $product->name,
                             'quantity' => $product->pivot->quantity,
@@ -75,6 +75,7 @@ class ReportController extends Controller
                             'price' => $product->pivot->unit_price,
                         ];
                     }),
+
                 ];
             });
             $formattedTransactions = $transactions->map(function ($transaction) {

@@ -26,14 +26,16 @@ class PurchaseRepository
     public function indexBySupplier($supplierId, $search)
     {
         if ($search) {
-            return $this->purchase::with('supplier', 'rawMaterials')
+            return $this->purchase::with('supplier', ['rawMaterials' => function ($query) {
+                $query->withTrashed();
+            }])
                 ->where('supplier_id', $supplierId)
                 ->where('id', 'like', "%$search%")
-                ->paginate(15);
+                ->orderBy('id', 'desc')->paginate(15);
         }
         return $this->purchase::with('supplier', 'rawMaterials')
-        ->where('supplier_id', $supplierId)
-        ->orderBy('id', 'desc')->paginate(15);
+            ->where('supplier_id', $supplierId)
+            ->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)
