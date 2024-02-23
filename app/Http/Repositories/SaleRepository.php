@@ -56,8 +56,7 @@ class SaleRepository
             $query->where('updated_at', '<=', $toDate);
         }
 
-        // return $query->with('products', 'customer')->where('status', 'confirmed')->orderBy('id', 'desc')->get();
-        // return with product even if product is has deleted_at 
+
         return $query->with(['products' => function ($query) {
             $query->withTrashed();
         }, 'customer'])->where('status', 'confirmed')->orderBy('id', 'desc')->get();
