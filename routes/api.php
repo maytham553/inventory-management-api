@@ -155,3 +155,26 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
 
 Route::put('sales/sss', [SaleController::class, 'updateSaleProductsCostAndProfit']);
 
+
+// get every sale has duplicated item . return it with sale id and customer name and duplicated product name 
+Route::get('sales/duplicated-products', function () {
+    $sales = \App\Models\Sale::with('customer', 'products')->get();
+    $duplicatedSales = [];
+    foreach ($sales as $sale) {
+        $products = $sale->products;
+        $duplicatedProducts = $products->filter(function ($product) use ($products) {
+            return $products->where('id', $product->id)->count() > 1;
+        });
+        if ($duplicatedProducts->count() > 0) {
+            $duplicatedSales[] = [
+                'sale_id' => $sale->id,
+                'customer_name' => $sale->customer->name,
+                'duplicated_products' => $duplicatedProducts->map(function ($product) {
+                    return $product->name;
+                }),
+                'created_at' => $sale->created_at,
+            ];
+        }
+    }
+    return response()->success($duplicatedSales, 'duplicated products retrieved successfully', 200);
+});
