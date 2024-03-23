@@ -95,10 +95,8 @@ class   SaleController extends Controller
         }
     }
 
-    // update every sale product cost and profit with the current product cost 
     public function updateSaleProductsCostAndProfit()
     {
-        // get all sales
         $sales = $this->saleRepository->index();
         $products = Product::all();
         foreach ($sales as $sale) {
@@ -152,7 +150,7 @@ class   SaleController extends Controller
             'note' => 'nullable|string',
             'driver_name' => 'nullable|string',
             'products' => 'required|array',
-            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.product_id' => 'required|distinct|exists:products,id',
             'products.*.quantity' => 'required|numeric|max:2147483647|min:1',
             'products.*.subtotal' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
             'products.*.total' => 'required|numeric|max:9223372036854775807|min:-9223372036854775808',
