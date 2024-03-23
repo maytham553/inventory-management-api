@@ -35,9 +35,6 @@ Route::get('test', function () {
     return response()->success('test', 'test', 200);
 });
 
-
-
-
 Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout']);
@@ -93,6 +90,8 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::post('sales', [SaleController::class, 'store']);
     Route::get('sales/{id}', [SaleController::class, 'show']);
     Route::put('sales/{id}', [SaleController::class, 'update']);
+    Route::delete('sales/{id}', [SaleController::class, 'destroy']);
+
 
 
     // raw material withdrawal records

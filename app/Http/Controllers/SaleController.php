@@ -171,4 +171,21 @@ class   SaleController extends Controller
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
         }
     }
+
+
+    public function destroy($id)
+    {
+        try {
+            $sale = $this->saleRepository->find($id);
+            $isLastDelete = $this->saleRepository->checkLastSaleForCustomer($sale);
+            if (!$isLastDelete) {
+                return response()->error('You can not delete this sale, it is not the last sale for this customer', 400);
+            }
+            $this->saleRepository->destroy($sale);
+            return response()->success(null, 'Sale deleted successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
 }

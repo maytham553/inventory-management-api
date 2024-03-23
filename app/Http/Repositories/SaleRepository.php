@@ -60,7 +60,6 @@ class SaleRepository
         return $query->with(['products' => function ($query) {
             $query->withTrashed();
         }, 'customer'])->where('status', 'confirmed')->orderBy('id', 'desc')->get();
-        
     }
 
     public function find($id)
@@ -170,13 +169,6 @@ class SaleRepository
         }
     }
 
-    private function updateCustomerTransaction(Sale $sale)
-    {
-        // delete customer transaction 
-        $customerTransaction = $sale->customerTransaction;
-
-        $this->customerTransactionRepository->destroy($customerTransaction);
-    }
 
     private function calculateProductsQuantity(Sale $sale)
     {
@@ -187,20 +179,45 @@ class SaleRepository
         }
     }
 
-    private function destroyCustomerTransaction(Sale $sale)
+    private function reverseCalculateProductsQuantity(Sale $sale)
+    {
+        $products = $sale->products;
+        foreach ($products as $product) {
+            $product->quantity += $product->pivot->quantity;
+            $product->save();
+        }
+    }
+
+
+    public function destroy(Sale $sale)
     {
         DB::beginTransaction();
         try {
-            $customerTransaction = $sale->customerTransaction;
-            $this->customerTransactionRepository->destroy($customerTransaction);
-            $sale->update([
-                'customer_transaction_id' => null,
-            ]);
+            $sale->products()->detach();
+            $isConfirmed = $sale->status === 'confirmed';
+            if ($isConfirmed) {
+                $this->customerTransactionRepository->destroy($sale->customerTransaction);
+                $this->reverseCalculateProductsQuantity($sale);
+                $sale->update([
+                    'customer_transaction_id' => null,
+                ]);
+            }
+            $sale->delete();
             DB::commit();
             return $sale;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
+    }
+
+    public function checkLastSaleForCustomer($sale)
+    {
+        $customer = $sale->customer;
+        $lastSale = $customer->sales->sortByDesc('created_at')->first();
+        if ($lastSale->id != $sale->id) {
+            return false;
+        }
+        return true;
     }
 }
