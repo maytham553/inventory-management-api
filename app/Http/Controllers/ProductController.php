@@ -18,7 +18,11 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $products = $this->productRepository->index();
+            if (auth()->user()->type === 'SuperAdmin') {
+                $products = $this->productRepository->index();
+            } else {
+                $products = $this->productRepository->indexWithoutCost();
+            }
             return response()->success($products, 'Products retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
