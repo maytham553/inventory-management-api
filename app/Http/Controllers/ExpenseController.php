@@ -108,15 +108,14 @@ class ExpenseController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         try {
             $data = $request->validate([
                 'title' => 'nullable|string',
                 'description' => 'nullable|string',
-                'amount' => 'nullable|numeric|max:9223372036854775807|min:-9223372036854775808',
             ]);
-            $expense = $this->expenseRepository->find($request->id);
+            $expense = $this->expenseRepository->find($id);
             $expense = $this->expenseRepository->update($expense, $data);
             return response()->success($expense, 'Expense updated successfully', 200);
         } catch (\Throwable $th) {

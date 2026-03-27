@@ -7,7 +7,6 @@ use Carbon\Carbon;
 
 class CustomerRepository
 {
-
     private Customer $customer;
 
     public function __construct(Customer $customer)
@@ -27,6 +26,7 @@ class CustomerRepository
                 ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN name LIKE '%$search%' THEN 2 WHEN phone LIKE '%$search%' THEN 3 WHEN address LIKE '%$search%' THEN 4 ELSE 5 END")
                 ->paginate(15);
         }
+
         return $this->customer::orderBy('id', 'desc')->paginate(15);
     }
 
@@ -49,7 +49,6 @@ class CustomerRepository
         return $query->paginate(200);
     }
 
-
     public function indexByGovernorate($id)
     {
         return $this->customer::where('governorate_id', $id)->orderBy('id', 'desc')->paginate(15);
@@ -59,7 +58,7 @@ class CustomerRepository
     {
         return $customer->sales()->with(['products' => function ($query) {
             $query->withTrashed();
-        }])->where('id', 'like', "%$search%")->orderBy('id', 'desc')->paginate(15);
+        }, 'user'])->where('id', 'like', "%$search%")->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)
@@ -77,7 +76,6 @@ class CustomerRepository
         return $customer->update($data);
     }
 
-
     public function updateBalance(Customer $customer, $amount, $type)
     {
         if ($type == 'credit') {
@@ -85,6 +83,7 @@ class CustomerRepository
         } else {
             $customer->balance -= $amount;
         }
+
         return $customer->save();
     }
 
@@ -93,12 +92,13 @@ class CustomerRepository
         $customer->balance = $customer->customerTransactions->sum(function ($transaction) {
             return $transaction->type == 'credit' ? $transaction->amount : -$transaction->amount;
         });
+
         return $customer->save();
     }
 
     public function destroy(Customer $customer)
     {
-        // when delete customer delete all his 
+        // when delete customer delete all his
         return $customer->delete();
     }
 }
