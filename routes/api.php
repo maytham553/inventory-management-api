@@ -14,6 +14,7 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
+use App\Models\Sale;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,10 +28,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// login 
+// login
 Route::post('login', [AuthController::class, 'login']);
 
-// test api 
+// test api
 Route::get('test', function () {
     return response()->success('test', 'test', 200);
 });
@@ -40,7 +41,7 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('users/currentUser', [UserController::class, 'showUser']);
 
-    // suppliers 
+    // suppliers
     Route::get('suppliers', [SupplierController::class, 'index']);
     Route::get('suppliers/governorate/{id}', [SupplierController::class, 'indexByGovernorate']);
     Route::post('suppliers', [SupplierController::class, 'store']);
@@ -92,8 +93,6 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::put('sales/{id}', [SaleController::class, 'update']);
     Route::delete('sales/{id}', [SaleController::class, 'destroy']);
 
-
-
     // raw material withdrawal records
     Route::get('raw-material-withdrawal-records', [RawMaterialWithdrawalRecordController::class, 'index']);
     Route::post('raw-material-withdrawal-records', [RawMaterialWithdrawalRecordController::class, 'store']);
@@ -101,7 +100,7 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::get('raw-material-withdrawal-records/raw-material/{id}', [RawMaterialWithdrawalRecordController::class, 'indexByRawMaterial']);
     Route::put('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'update']);
     Route::delete('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'destroy']);
-  
+
     Route::get('products', [ProductController::class, 'index']);
 
     // expenses
@@ -109,13 +108,12 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     // print expenses
     Route::get('expenses/print', [ExpenseController::class, 'printExpenses']);
 
-    // governrate return all 
+    // governrate return all
     Route::get('governorates', [GovernorateController::class, 'index']);
-
 
     Route::middleware(['checkUserType:Admin|SuperAdmin'])->group(function () {
 
-        //User and Auth
+        // User and Auth
         Route::get('users', [UserController::class, 'index']);
         Route::post('users', [UserController::class, 'store']);
         Route::get('users/{id}', [UserController::class, 'show']);
@@ -142,22 +140,21 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::get('expenses/{id}', [ExpenseController::class, 'show']);
         Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
     },
-     // super admin 
-     Route::middleware(['checkUserType:SuperAdmin'])->group(function () {
-        Route::put('expenses/{id}', [ExpenseController::class, 'update']);
-        Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
-        Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
-    })
+        // super admin
+        Route::middleware(['checkUserType:SuperAdmin'])->group(function () {
+            Route::put('expenses/{id}', [ExpenseController::class, 'update']);
+            Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
+            Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
+        })
 
-);
+    );
 });
 
 Route::put('sales/sss', [SaleController::class, 'updateSaleProductsCostAndProfit']);
 
-
-// get every sale has duplicated item . return it with sale id and customer name and duplicated product name 
+// get every sale has duplicated item . return it with sale id and customer name and duplicated product name
 Route::get('sales/duplicated-products', function () {
-    $sales = \App\Models\Sale::with('customer', 'products')->get();
+    $sales = Sale::with('customer', 'products')->get();
     $duplicatedSales = [];
     foreach ($sales as $sale) {
         $products = $sale->products;
@@ -175,5 +172,6 @@ Route::get('sales/duplicated-products', function () {
             ];
         }
     }
+
     return response()->success($duplicatedSales, 'duplicated products retrieved successfully', 200);
 });
