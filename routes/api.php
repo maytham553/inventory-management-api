@@ -140,11 +140,11 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::get('expenses', [ExpenseController::class, 'index']);
         Route::get('expenses/user/{id}', [ExpenseController::class, 'indexByUser']);
         Route::get('expenses/{id}', [ExpenseController::class, 'show']);
-        Route::put('expenses/{id}', [ExpenseController::class, 'update']);
         Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
     },
      // super admin 
      Route::middleware(['checkUserType:SuperAdmin'])->group(function () {
+        Route::put('expenses/{id}', [ExpenseController::class, 'update']);
         Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
         Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
     })
