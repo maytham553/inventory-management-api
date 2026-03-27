@@ -3,7 +3,6 @@
 namespace App\Http\Repositories;
 
 use App\Models\Expense;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ExpenseRepository
@@ -14,7 +13,6 @@ class ExpenseRepository
     {
         $this->expense = $expense;
     }
-
 
     public function index($search, $from = null, $to = null)
     {
@@ -33,9 +31,11 @@ class ExpenseRepository
         if ($search) {
             $expenses->where('id', 'like', "%$search%")
                 ->orWhere('title', 'like', "%$search%")
-                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 ELSE 3 END");
+                ->orWhere('description', 'like', "%$search%")
+                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 WHEN description LIKE '%$search%' THEN 3 ELSE 4 END");
         }
-        return $expenses->orderBy('id', 'desc')->paginate(50);
+
+        return $expenses->orderBy('id', 'desc')->paginate(100);
     }
 
     public function indexWithoutPagination($search, $from = null, $to = null)
@@ -55,8 +55,10 @@ class ExpenseRepository
         if ($search) {
             $expenses->where('id', 'like', "%$search%")
                 ->orWhere('title', 'like', "%$search%")
-                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 ELSE 3 END");
+                ->orWhere('description', 'like', "%$search%")
+                ->orderByRaw("CASE WHEN id LIKE '%$search%' THEN 1 WHEN title LIKE '%$search%' THEN 2 WHEN description LIKE '%$search%' THEN 3 ELSE 4 END");
         }
+
         return $expenses->orderBy('id', 'desc')->with('user')->get();
     }
 
@@ -77,15 +79,18 @@ class ExpenseRepository
         return $query->orderBy('id', 'desc')->get();
     }
 
-
     public function search($search)
     {
-        return $this->expense::where('id', $search)->orWhere('title', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate(15);
+        return $this->expense::where('id', $search)
+            ->orWhere('title', 'like', '%'.$search.'%')
+            ->orWhere('description', 'like', '%'.$search.'%')
+            ->orderBy('id', 'desc')
+            ->paginate(100);
     }
 
     public function indexByUser($userId)
     {
-        return $this->expense::where('user_id', $userId)->orderBy('id', 'desc')->paginate(15);
+        return $this->expense::where('user_id', $userId)->orderBy('id', 'desc')->paginate(100);
     }
 
     public function find($id)
@@ -101,12 +106,14 @@ class ExpenseRepository
     public function update(Expense $expense, array $data)
     {
         $expense->update($data);
+
         return $expense;
     }
 
     public function destroy(Expense $expense)
     {
         $expense->delete();
+
         return $expense;
     }
 }

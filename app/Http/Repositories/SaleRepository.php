@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\DB;
 class SaleRepository
 {
     private Sale $sale;
+
     private CustomerTransactionRepository $customerTransactionRepository;
+
     private ProductRepository $productRepository;
+
     public function __construct(Sale $sale, CustomerTransactionRepository $customerTransactionRepository, ProductRepository $productRepository)
     {
         $this->sale = $sale;
@@ -56,7 +59,6 @@ class SaleRepository
             $query->where('updated_at', '<=', $toDate);
         }
 
-
         return $query->with(['products' => function ($query) {
             $query->withTrashed();
         }, 'customer'])->where('status', 'confirmed')->orderBy('id', 'desc')->get();
@@ -64,7 +66,7 @@ class SaleRepository
 
     public function find($id)
     {
-        return $this->sale::with('customer', 'products')->findOrFail($id);
+        return $this->sale::with('customer', 'products', 'user')->findOrFail($id);
     }
 
     public function store(array $data)
@@ -72,7 +74,7 @@ class SaleRepository
         $isConfirmed = $data['status'] === 'confirmed';
         DB::beginTransaction();
         try {
-            if (!$isConfirmed) {
+            if (! $isConfirmed) {
                 $data['previous_balance'] = 0;
                 $sale = $this->createSale($data, $isConfirmed);
             } else {
@@ -82,6 +84,7 @@ class SaleRepository
                 $this->handleConfirmedSale($sale);
             }
             DB::commit();
+
             return $sale;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -89,11 +92,11 @@ class SaleRepository
         }
     }
 
-
     private function createSale(array &$data): Sale
     {
         $sale = $this->sale::create($data);
         $sale->products()->sync($data['products'] ?? []);
+
         return $sale;
     }
 
@@ -113,7 +116,6 @@ class SaleRepository
         $this->calculateProductsQuantity($sale);
     }
 
-
     // update
     public function update(Sale $sale, array $data)
     {
@@ -130,6 +132,7 @@ class SaleRepository
                 $sale = $this->updateSale($sale, $data);
             }
             DB::commit();
+
             return $sale;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -137,14 +140,14 @@ class SaleRepository
         }
     }
 
-    // update sale 
+    // update sale
     private function updateSale(Sale $sale, array $data)
     {
         $sale->update($data);
         $sale->products()->sync($data['products'] ?? []);
+
         return $sale;
     }
-
 
     private function storeCustomerTransaction(Sale $sale)
     {
@@ -155,20 +158,20 @@ class SaleRepository
                 'customer_id' => $sale->customer_id,
                 'amount' => $sale->total_amount,
                 'type' => 'debit',
-                'note' => 'رقم القائمة: ' . $sale->id . ' - اسم الزبون: ' . $sale->customer->name,
+                'note' => 'رقم القائمة: '.$sale->id.' - اسم الزبون: '.$sale->customer->name,
             ]);
             // Store transaction id in sale
             $sale->update([
                 'customer_transaction_id' => $customerTransaction->id,
             ]);
             DB::commit();
+
             return $sale;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
-
 
     private function calculateProductsQuantity(Sale $sale)
     {
@@ -188,7 +191,6 @@ class SaleRepository
         }
     }
 
-
     public function destroy(Sale $sale)
     {
         DB::beginTransaction();
@@ -204,6 +206,7 @@ class SaleRepository
             }
             $sale->delete();
             DB::commit();
+
             return $sale;
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -218,6 +221,7 @@ class SaleRepository
         if ($lastSale->id != $sale->id) {
             return false;
         }
+
         return true;
     }
 }
