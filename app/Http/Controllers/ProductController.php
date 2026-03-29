@@ -18,11 +18,27 @@ class ProductController extends Controller
     public function index()
     {
         try {
+            $search = request()->search;
             if (auth()->user()->type === 'SuperAdmin') {
-                $products = $this->productRepository->index();
+                $products = $this->productRepository->index($search);
             } else {
-                $products = $this->productRepository->indexWithoutCost();
+                $products = $this->productRepository->indexWithoutCost($search);
             }
+            return response()->success($products, 'Products retrieved successfully', 200);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
+        }
+    }
+
+    /**
+     * Full catalog for sale/invoice product picker (avoids paginated index limits).
+     */
+    public function salePicker()
+    {
+        try {
+            $includeCost = auth()->user()->type === 'SuperAdmin';
+            $products = $this->productRepository->allForSalePicker($includeCost);
+
             return response()->success($products, 'Products retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);

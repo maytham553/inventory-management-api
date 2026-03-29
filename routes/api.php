@@ -102,6 +102,8 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::delete('raw-material-withdrawal-records/{id}', [RawMaterialWithdrawalRecordController::class, 'destroy']);
 
     Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/sale-picker', [ProductController::class, 'salePicker'])
+        ->name('products.sale-picker');
 
     // expenses
     Route::post('expenses', [ExpenseController::class, 'store']);

@@ -3,6 +3,7 @@
 namespace App\Http\Repositories;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductRepository
 {
@@ -13,14 +14,48 @@ class ProductRepository
         $this->product = $product;
     }
 
-    public function index()
+    public function index(?string $search = null)
     {
-        return $this->product::orderBy('id', 'desc')->paginate(15);
+        $query = $this->product::query()->orderBy('id', 'desc');
+        $this->applySearch($query, $search);
+
+        return $query->paginate(15);
     }
 
-    public function indexWithoutCost()
+    public function indexWithoutCost(?string $search = null)
     {
-        return $this->product::select('id', 'name', 'code', 'barcode', 'quantity', 'price', 'note')->orderBy('id', 'desc')->paginate(1500);
+        $query = $this->product::select('id', 'name', 'code', 'barcode', 'quantity', 'price', 'note')
+            ->orderBy('id', 'desc');
+        $this->applySearch($query, $search);
+
+        return $query->paginate(1500);
+    }
+
+    private function applySearch($query, ?string $search): void
+    {
+        if (! $search) {
+            return;
+        }
+
+        $query->where(function ($q) use ($search) {
+            $q->where('id', 'like', "%{$search}%")
+                ->orWhere('name', 'like', "%{$search}%")
+                ->orWhere('code', 'like', "%{$search}%")
+                ->orWhere('barcode', 'like', "%{$search}%")
+                ->orWhere('note', 'like', "%{$search}%");
+        });
+    }
+
+    /**
+     * Full product list for sale invoice line-item picker (not paginated).
+     */
+    public function allForSalePicker(bool $includeCost): Collection
+    {
+        $query = $includeCost
+            ? $this->product::query()
+            : $this->product::select('id', 'name', 'code', 'barcode', 'quantity', 'price', 'note');
+
+        return $query->orderBy('id', 'desc')->get();
     }
 
     public function find($id)
