@@ -15,7 +15,7 @@ class ProductRepository
 
     public function index()
     {
-        return $this->product::orderBy('id', 'desc')->get();
+        return $this->product::orderBy('id', 'desc')->paginate(15);
     }
 
     public function indexWithoutCost()
@@ -41,6 +41,7 @@ class ProductRepository
     public function updateQuantity(Product $product, $quantity)
     {
         $product->quantity += $quantity;
+
         return $product->save();
     }
 
