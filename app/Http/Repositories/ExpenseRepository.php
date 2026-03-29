@@ -68,12 +68,12 @@ class ExpenseRepository
 
         if ($from !== null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
-            $query->where('updated_at', '>=', $fromDate);
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($to !== null) {
             $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
-            $query->where('updated_at', '<=', $toDate);
+            $query->where('created_at', '<=', $toDate);
         }
 
         return $query->orderBy('id', 'desc')->get();
