@@ -50,7 +50,7 @@ class PurchaseRepository
         try {
             $rawMaterials = $data['raw_materials'];
             $purchase = $this->purchase::create($data);
-            $purchase->rawMaterials()->sync($data['raw_materials'] ?? []);
+            $purchase->rawMaterials()->sync($this->formatRawMaterialsForSync($data['raw_materials'] ?? []));
             if ($data['status'] == 'confirmed') {
                 $this->storeSupplierTransaction($purchase);
                 $this->calculateRawMaterialsQuantity($purchase);
@@ -69,7 +69,7 @@ class PurchaseRepository
         DB::beginTransaction();
         try {
             $this->updateSupplierTransaction($purchase, $data);
-            $purchase->rawMaterials()->sync($data['raw_materials'] ?? []);
+            $purchase->rawMaterials()->sync($this->formatRawMaterialsForSync($data['raw_materials'] ?? []));
             $purchase->update($data);
             $purchase->refresh();
             $this->calculateRawMaterialsQuantity($purchase);
@@ -134,6 +134,15 @@ class PurchaseRepository
             $rawMaterial->quantity += $rawMaterial->pivot->quantity;
             $rawMaterial->save();
         }
+    }
+
+    private function formatRawMaterialsForSync(array $rawMaterials): array
+    {
+        return collect($rawMaterials)->mapWithKeys(function ($rawMaterial) {
+            $id = $rawMaterial['raw_material_id'];
+            unset($rawMaterial['raw_material_id']);
+            return [$id => $rawMaterial];
+        })->toArray();
     }
 
     // destroy supplier transaction

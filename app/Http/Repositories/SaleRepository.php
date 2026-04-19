@@ -95,7 +95,7 @@ class SaleRepository
     private function createSale(array &$data): Sale
     {
         $sale = $this->sale::create($data);
-        $sale->products()->sync($data['products'] ?? []);
+        $sale->products()->sync($this->formatProductsForSync($data['products'] ?? []));
 
         return $sale;
     }
@@ -144,9 +144,18 @@ class SaleRepository
     private function updateSale(Sale $sale, array $data)
     {
         $sale->update($data);
-        $sale->products()->sync($data['products'] ?? []);
+        $sale->products()->sync($this->formatProductsForSync($data['products'] ?? []));
 
         return $sale;
+    }
+
+    private function formatProductsForSync(array $products): array
+    {
+        return collect($products)->mapWithKeys(function ($product) {
+            $id = $product['product_id'];
+            unset($product['product_id']);
+            return [$id => $product];
+        })->toArray();
     }
 
     private function storeCustomerTransaction(Sale $sale)
