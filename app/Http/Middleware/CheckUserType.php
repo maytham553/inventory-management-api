@@ -12,21 +12,14 @@ class CheckUserType
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  string  $types  One or more allowed types, pipe separated (e.g. "Admin|SuperAdmin").
      */
-    public function handle(Request $request, Closure $next, $type)
+    public function handle(Request $request, Closure $next, $types)
     {
-       
-        $userType = auth('sanctum')->user()->type;
+        $user = auth('sanctum')->user();
+        $allowedTypes = explode('|', $types);
 
-        if ($type == 'SuperAdmin' && $userType != 'SuperAdmin') {
-            return response()->json(['message' => 'Access denied'], 403);
-        }
-
-        if ($type == 'Admin' && $userType != 'Admin') {
-            return response()->json(['message' => 'Access denied'], 403);
-        }
-
-        if ($type == 'User' && $userType != 'User'  ) {
+        if (! $user || ! in_array($user->type, $allowedTypes, true)) {
             return response()->json(['message' => 'Access denied'], 403);
         }
 

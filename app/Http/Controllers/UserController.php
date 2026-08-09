@@ -17,7 +17,7 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = $this->userRepository->index();
+            $users = $this->userRepository->index(request()->search);
             return response()->success($users, 'Users retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
@@ -74,11 +74,12 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => 'string',
-            'email' => 'email|unique:users,email,' . $id,
-            'password' => 'string|min:8',
-            'type' => 'in:Admin,User,SuperAdmin',
+            'name' => 'nullable|string',
+            'email' => 'nullable|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'type' => 'nullable|in:Admin,User,SuperAdmin',
         ]);
+        $data = array_filter($data, fn ($value) => $value !== null && $value !== '');
         try {
             $user = $this->userRepository->find($id);
             if (isset($data['password'])) {
@@ -115,8 +116,11 @@ class UserController extends Controller
     public function destroy($id)
     {
         try {
+            if ((int) $id === (int) auth()->id()) {
+                return response()->error('You cannot delete your own account', 403);
+            }
             $user = $this->userRepository->find($id);
-            $user = $this->userRepository->destroy($user);
+            $this->userRepository->destroy($user);
             return response()->success($user, 'User deleted successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);

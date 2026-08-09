@@ -115,12 +115,6 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
 
     Route::middleware(['checkUserType:Admin|SuperAdmin'])->group(function () {
 
-        // User and Auth
-        Route::get('users', [UserController::class, 'index']);
-        Route::post('users', [UserController::class, 'store']);
-        Route::get('users/{id}', [UserController::class, 'show']);
-        Route::put('users/{id}', [UserController::class, 'update']);
-        Route::delete('users/{id}', [UserController::class, 'destroy']);
         Route::post('logout/all', [AuthController::class, 'logoutFromAllDevices']);
 
         // products
@@ -141,15 +135,22 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::get('expenses/user/{id}', [ExpenseController::class, 'indexByUser']);
         Route::get('expenses/{id}', [ExpenseController::class, 'show']);
         Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
-    },
-        // super admin
-        Route::middleware(['checkUserType:SuperAdmin'])->group(function () {
-            Route::put('expenses/{id}', [ExpenseController::class, 'update']);
-            Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
-            Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
-        })
+    });
 
-    );
+    // super admin
+    Route::middleware(['checkUserType:SuperAdmin'])->group(function () {
+
+        // users management
+        Route::get('users', [UserController::class, 'index']);
+        Route::post('users', [UserController::class, 'store']);
+        Route::get('users/{id}', [UserController::class, 'show']);
+        Route::put('users/{id}', [UserController::class, 'update']);
+        Route::delete('users/{id}', [UserController::class, 'destroy']);
+
+        Route::put('expenses/{id}', [ExpenseController::class, 'update']);
+        Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
+        Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
+    });
 });
 
 Route::put('sales/sss', [SaleController::class, 'updateSaleProductsCostAndProfit']);

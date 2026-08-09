@@ -13,9 +13,20 @@ class UserRepository
     {
         $this->user = $user;
     }
-    public function index()
+    public function index(?string $search = null)
     {
-        return $this->user::orderBy('id', 'desc')->paginate(15);
+        $query = $this->user::query()->orderBy('id', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('type', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate(15);
     }
     public function find($id)
     {
@@ -25,12 +36,18 @@ class UserRepository
     {
         return $this->user::create($data);
     }
-    public function update( User $user , array $data) 
+    public function update( User $user , array $data)
     {
-        return $user->update($data); 
+        $user->update($data);
+
+        return $user->fresh();
     }
     public function destroy(User $user)
     {
+        // Soft delete keeps the row (and everything referencing it), but the
+        // access tokens are dead weight once the account is gone.
+        $user->tokens()->delete();
+
         return $user->delete();
     }
 }
