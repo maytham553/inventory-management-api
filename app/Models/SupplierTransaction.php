@@ -24,8 +24,10 @@ class SupplierTransaction extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    // withTrashed: users are soft deleted, and a receipt must keep showing who
+    // wrote it long after that account is gone.
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 }

@@ -62,7 +62,7 @@ class ExpenseRepository
         return $expenses->orderBy('id', 'desc')->with('user')->get();
     }
 
-    public function indexByDate($from = null, $to = null)
+    public function sumByDate($from = null, $to = null)
     {
         $query = $this->expense::query();
 
@@ -76,16 +76,7 @@ class ExpenseRepository
             $query->where('created_at', '<=', $toDate);
         }
 
-        return $query->orderBy('id', 'desc')->get();
-    }
-
-    public function search($search)
-    {
-        return $this->expense::where('id', $search)
-            ->orWhere('title', 'like', '%'.$search.'%')
-            ->orWhere('description', 'like', '%'.$search.'%')
-            ->orderBy('id', 'desc')
-            ->paginate(100);
+        return (int) $query->sum('amount');
     }
 
     public function indexByUser($userId)

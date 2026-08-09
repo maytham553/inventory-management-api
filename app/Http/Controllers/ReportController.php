@@ -29,10 +29,10 @@ class ReportController extends Controller
         $from = $request->from;
         $to = $request->to;
         try {
-            $sales = $this->saleRepository->indexByDate($from, $to);
-            $salesProfit = $sales->sum('profit');
-            $totalSales = $sales->sum('total_amount');
-            $expenses = $this->expenseRepository->indexByDate($from, $to)->sum('amount');
+            $totals = $this->saleRepository->statisticsByDate($from, $to);
+            $salesProfit = $totals['sales_profit'];
+            $totalSales = $totals['total_sales'];
+            $expenses = $this->expenseRepository->sumByDate($from, $to);
             $profit = $salesProfit - $expenses;
             $response = [
                 'sales_profit' => $salesProfit,
@@ -98,7 +98,7 @@ class ReportController extends Controller
             $response['transactions'] = $formattedTransactions;
             return response()->success($response, 'statistics retrieved successfully', 200);
         } catch (\Throwable $th) {
-            return response()->error($th->getMessage());
+            return response()->error($th->getMessage(), $th->getCode() ?: 500);
         }
     }
 }

@@ -33,9 +33,11 @@ class Sale extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    // withTrashed: customers are soft deleted, and an invoice must keep showing
+    // whose it was long after that customer record is gone.
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class)->withTrashed();
     }
 
     public function products()

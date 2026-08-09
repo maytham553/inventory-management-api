@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Repositories\ProductRepository;
 use App\Http\Repositories\SaleRepository;
-use App\Models\Product;
 use Illuminate\Http\Request;
 
 class   SaleController extends Controller
@@ -20,6 +18,12 @@ class   SaleController extends Controller
     {
         try {
             $sales = $this->saleRepository->index();
+            $sales->getCollection()->each(function ($sale) {
+                $sale->products->makeHidden('cost');
+                $sale->products->each(function ($product) {
+                    $product->pivot->makeHidden('cost');
+                });
+            });
             return response()->success($sales, 'Sales retrieved successfully', 200);
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), $th->getCode() ?: 500);
@@ -93,40 +97,6 @@ class   SaleController extends Controller
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), 400);
         }
-    }
-
-    public function updateSaleProductsCostAndProfit()
-    {
-        $sales = $this->saleRepository->index();
-        $products = Product::all();
-        foreach ($sales as $sale) {
-            foreach ($sale->products as $product) {
-                $product = $products->find($product->id);
-                $sale->products()->updateExistingPivot($product->id, [
-                    'cost' => $product->cost,
-                ]);
-            }
-        }
-        $this->updateProfit();
-        return response()->success($sales, 'Sales products cost and profit updated successfully', 200);
-    }
-
-    // recaclulate the profit of every sale
-    public function updateProfit()
-    {
-        // get all sales
-        $sales = $this->saleRepository->index();
-        foreach ($sales as $sale) {
-            // caclulate the profit of sale 
-            $profit = 0;
-            foreach ($sale->products as $product) {
-                $profit += ($product->pivot->total - ($product->pivot->cost * $product->pivot->quantity));
-            }
-            $sale->update([
-                'profit' => $profit,
-            ]);
-        }
-        return response()->success($sales, 'Sales profit recalculated successfully', 200);
     }
 
     public function show($id)

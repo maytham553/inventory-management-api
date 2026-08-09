@@ -15,7 +15,6 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
-use App\Models\Sale;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -108,8 +107,6 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
 
     // expenses
     Route::post('expenses', [ExpenseController::class, 'store']);
-    // print expenses
-    Route::get('expenses/print', [ExpenseController::class, 'printExpenses']);
 
     // governrate return all
     Route::get('governorates', [GovernorateController::class, 'index']);
@@ -134,6 +131,7 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         // expenses
         Route::get('expenses', [ExpenseController::class, 'index']);
         Route::get('expenses/user/{id}', [ExpenseController::class, 'indexByUser']);
+        Route::get('expenses/print', [ExpenseController::class, 'printExpenses']);
         Route::get('expenses/{id}', [ExpenseController::class, 'show']);
         Route::delete('expenses/{id}', [ExpenseController::class, 'destroy']);
     });
@@ -158,30 +156,4 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);
         Route::get('reports/sales-statistics-by-day', [ReportController::class, 'salesStatisticsByDay']);
     });
-});
-
-Route::put('sales/sss', [SaleController::class, 'updateSaleProductsCostAndProfit']);
-
-// get every sale has duplicated item . return it with sale id and customer name and duplicated product name
-Route::get('sales/duplicated-products', function () {
-    $sales = Sale::with('customer', 'products')->get();
-    $duplicatedSales = [];
-    foreach ($sales as $sale) {
-        $products = $sale->products;
-        $duplicatedProducts = $products->filter(function ($product) use ($products) {
-            return $products->where('id', $product->id)->count() > 1;
-        });
-        if ($duplicatedProducts->count() > 0) {
-            $duplicatedSales[] = [
-                'sale_id' => $sale->id,
-                'customer_name' => $sale->customer->name,
-                'duplicated_products' => $duplicatedProducts->map(function ($product) {
-                    return $product->name;
-                }),
-                'created_at' => $sale->created_at,
-            ];
-        }
-    }
-
-    return response()->success($duplicatedSales, 'duplicated products retrieved successfully', 200);
 });

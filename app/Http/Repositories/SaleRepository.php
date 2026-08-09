@@ -24,12 +24,14 @@ class SaleRepository
 
     public function index()
     {
-        return $this->sale::with('customer', 'products')->get();
+        return $this->sale::with(['customer', 'products' => fn ($query) => $query->withTrashed()])
+            ->orderBy('id', 'desc')
+            ->paginate(15);
     }
 
     public function indexByDate($from = null, $to = null)
     {
-        $query = $this->sale::query();
+        $query = $this->sale::query()->where('status', 'confirmed');
 
         if ($from !== null) {
             $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
@@ -42,6 +44,29 @@ class SaleRepository
         }
 
         return $query->orderBy('id', 'desc')->get();
+    }
+
+    public function statisticsByDate($from = null, $to = null)
+    {
+        $query = $this->sale::query()->where('status', 'confirmed');
+
+        if ($from !== null) {
+            $fromDate = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $query->where('updated_at', '>=', $fromDate);
+        }
+
+        if ($to !== null) {
+            $toDate = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $query->where('updated_at', '<=', $toDate);
+        }
+
+        $totals = $query->selectRaw('COALESCE(SUM(total_amount), 0) as total_sales, COALESCE(SUM(profit), 0) as sales_profit')
+            ->first();
+
+        return [
+            'total_sales' => (int) $totals->total_sales,
+            'sales_profit' => (int) $totals->sales_profit,
+        ];
     }
 
     // index by date with products
