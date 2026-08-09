@@ -1,0 +1,65 @@
+name: Deploy API
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: 'Run database migrations'
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+env:
+  SSH_HOST: 185.245.180.16
+  SSH_USER: safa5451
+  SSH_PORT: '65002'
+  APP_DIR: /home/safa5451/api.safa-sponge.com
+  RUN_MIGRATIONS: ${{ inputs.run_migrations }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "APP_DIR='$APP_DIR' RUN_MIGRATIONS='$RUN_MIGRATIONS' bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          cd "$APP_DIR"
+
+          php artisan down --retry=15 || true
+          trap 'php artisan up || true' EXIT
+
+          git fetch origin
+          git reset --hard origin/main
+
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+          if [ "$RUN_MIGRATIONS" = "true" ]; then
+            php artisan migrate --force
+          fi
+
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+          php artisan --version
+          REMOTE
+
+      - name: Clean up SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
