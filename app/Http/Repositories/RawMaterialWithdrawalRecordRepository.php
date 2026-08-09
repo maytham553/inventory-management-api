@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\RawMaterialWithdrawalRecord;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,13 @@ class RawMaterialWithdrawalRecordRepository
 
     public function find($id)
     {
-        return $this->rawMaterialWithdrawalRecord::findOrFail($id);
+        $record = $this->rawMaterialWithdrawalRecord::find($id);
+
+        if (! $record) {
+            throw new RecordNotFoundException('Withdrawal record not found');
+        }
+
+        return $record;
     }
 
     // store with effect in raw_materials table

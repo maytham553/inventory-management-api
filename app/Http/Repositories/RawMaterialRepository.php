@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\RawMaterial;
 
 class RawMaterialRepository
@@ -20,7 +21,13 @@ class RawMaterialRepository
 
     public function find($id)
     {
-        return $this->rawMaterial::findOrFail($id);
+        $rawMaterial = $this->rawMaterial::find($id);
+
+        if (! $rawMaterial) {
+            throw new RecordNotFoundException('Raw material not found');
+        }
+
+        return $rawMaterial;
     }
 
     public function store(array $data)

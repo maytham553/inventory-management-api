@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\Customer;
 use App\Models\Sale;
 use Carbon\Carbon;
@@ -91,7 +92,13 @@ class SaleRepository
 
     public function find($id)
     {
-        return $this->sale::with('customer', 'products', 'user')->findOrFail($id);
+        $sale = $this->sale::with('customer', 'products', 'user')->find($id);
+
+        if (! $sale) {
+            throw new RecordNotFoundException('Sale not found');
+        }
+
+        return $sale;
     }
 
     public function store(array $data)
@@ -104,7 +111,7 @@ class SaleRepository
                 $sale = $this->createSale($data, $isConfirmed);
             } else {
                 $this->calculateProfit($data);
-                $data['previous_balance'] = Customer::find($data['customer_id'])->balance;
+                $data['previous_balance'] = $this->customerBalance($data['customer_id']);
                 $sale = $this->createSale($data, $isConfirmed);
                 $this->handleConfirmedSale($sale);
             }
@@ -130,10 +137,31 @@ class SaleRepository
     {
         $totalCost = 0;
         foreach ($data['products'] as $product) {
-            $fetchedProduct = $this->productRepository->find($product['product_id']);
+            // withTrashed: a sale drafted before a product was deleted must still be
+            // confirmable. Validation uses exists:products,id, which ignores
+            // deleted_at, so a strict find() here 500s on a line the request accepted.
+            $fetchedProduct = $this->productRepository->findWithTrashed($product['product_id']);
             $totalCost += $fetchedProduct->cost * $product['quantity'];
         }
         $data['profit'] = $data['total_amount'] - $totalCost;
+    }
+
+    /**
+     * withTrashed: a draft written before the customer was deleted must still be
+     * resolvable. Without it Customer::find() returns null and confirming the sale
+     * dies on ->balance — and those drafts cannot be deleted either (they are not
+     * the customer's last sale) and customers have no restore screen, so the row
+     * would be stuck forever with no way out from the UI.
+     */
+    private function customerBalance($customerId)
+    {
+        $customer = Customer::withTrashed()->find($customerId);
+
+        if (! $customer) {
+            throw new RecordNotFoundException('Customer not found');
+        }
+
+        return $customer->balance;
     }
 
     private function handleConfirmedSale(Sale $sale)
@@ -150,7 +178,7 @@ class SaleRepository
             $isConfirmed = $data['status'] === 'confirmed';
             if ($isConfirmed) {
                 $this->calculateProfit($data);
-                $data['previous_balance'] = Customer::find($sale['customer_id'])->balance;
+                $data['previous_balance'] = $this->customerBalance($sale['customer_id']);
                 $this->updateSale($sale, $data);
                 $sale->refresh();
                 $this->handleConfirmedSale($sale);

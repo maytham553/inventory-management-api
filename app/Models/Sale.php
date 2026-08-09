@@ -40,9 +40,14 @@ class Sale extends Model
         return $this->belongsTo(Customer::class)->withTrashed();
     }
 
+    // withTrashed: products are soft deleted, and an invoice must keep listing
+    // every line it was billed for. Without it the pivot row survives but the
+    // product vanishes from the collection, so the invoice silently shows fewer
+    // lines than it was charged for.
     public function products()
     {
         return $this->belongsToMany(Product::class , 'sale_product' )
+            ->withTrashed()
             ->withPivot(
                 'quantity',
                 'subtotal',

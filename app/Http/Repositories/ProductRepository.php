@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -60,7 +61,30 @@ class ProductRepository
 
     public function find($id)
     {
-        return $this->product::findOrFail($id);
+        $product = $this->product::find($id);
+
+        if (! $product) {
+            throw new RecordNotFoundException('Product not found');
+        }
+
+        return $product;
+    }
+
+    /**
+     * For paths that must still resolve a product that was deleted after the row
+     * referencing it was written — confirming a sale drafted before the deletion,
+     * or crediting stock back when such a sale is removed. find() stays strict so
+     * the product screens keep 404-ing on a deleted id.
+     */
+    public function findWithTrashed($id)
+    {
+        $product = $this->product::withTrashed()->find($id);
+
+        if (! $product) {
+            throw new RecordNotFoundException('Product not found');
+        }
+
+        return $product;
     }
 
     public function store(array $data)

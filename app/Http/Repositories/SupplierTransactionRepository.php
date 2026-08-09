@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\SupplierTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,13 @@ class SupplierTransactionRepository
 
     public function find($id)
     {
-        return $this->supplierTransaction::with('supplier')->findOrFail($id);
+        $transaction = $this->supplierTransaction::with('supplier')->find($id);
+
+        if (! $transaction) {
+            throw new RecordNotFoundException('Supplier transaction not found');
+        }
+
+        return $transaction;
     }
 
 

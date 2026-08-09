@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\CustomerTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -49,7 +50,13 @@ class CustomerTransactionRepository
 
     public function find($id)
     {
-        return $this->customerTransaction::with('customer')->findOrFail($id);
+        $transaction = $this->customerTransaction::with('customer')->find($id);
+
+        if (! $transaction) {
+            throw new RecordNotFoundException('Customer transaction not found');
+        }
+
+        return $transaction;
     }
 
     public function store(array $data)

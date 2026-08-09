@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\Expense;
 use Carbon\Carbon;
 
@@ -86,7 +87,13 @@ class ExpenseRepository
 
     public function find($id)
     {
-        return $this->expense::findOrFail($id);
+        $expense = $this->expense::find($id);
+
+        if (! $expense) {
+            throw new RecordNotFoundException('Expense not found');
+        }
+
+        return $expense;
     }
 
     public function store(array $data)

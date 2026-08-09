@@ -19,9 +19,11 @@ class SupplierTransaction extends Model
         'note',
     ];
 
+    // withTrashed: suppliers are soft deleted, and a ledger entry must keep
+    // showing whose it was long after that supplier record is gone.
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class)->withTrashed();
     }
 
     // withTrashed: users are soft deleted, and a receipt must keep showing who

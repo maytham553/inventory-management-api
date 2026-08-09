@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -30,7 +31,13 @@ class UserRepository
     }
     public function find($id)
     {
-        return $this->user::findOrFail($id);
+        $user = $this->user::find($id);
+
+        if (! $user) {
+            throw new RecordNotFoundException('User not found');
+        }
+
+        return $user;
     }
     public function store(array $data)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\Purchase;
 use App\Models\SupplierTransaction;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,13 @@ class PurchaseRepository
 
     public function find($id)
     {
-        return $this->purchase::with('supplier', 'user', 'rawMaterials')->findOrFail($id);
+        $purchase = $this->purchase::with('supplier', 'user', 'rawMaterials')->find($id);
+
+        if (! $purchase) {
+            throw new RecordNotFoundException('Purchase not found');
+        }
+
+        return $purchase;
     }
 
 

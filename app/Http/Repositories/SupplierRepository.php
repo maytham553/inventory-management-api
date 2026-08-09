@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class SupplierRepository
 
     public function supplierTransactions($id, $from = null, $to = null)
     {
-        $supplier = Supplier::findOrFail($id);
+        $supplier = $this->find($id);
 
         $query = $supplier->supplierTransactions()->orderBy('created_at', 'desc');
 
@@ -58,7 +59,13 @@ class SupplierRepository
 
     public function find($id)
     {
-        return $this->supplier::findOrFail($id);
+        $supplier = $this->supplier::find($id);
+
+        if (! $supplier) {
+            throw new RecordNotFoundException('Supplier not found');
+        }
+
+        return $supplier;
     }
 
     public function store(array $data)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Repositories;
 
+use App\Exceptions\RecordNotFoundException;
 use App\Models\Customer;
 use Carbon\Carbon;
 
@@ -32,7 +33,7 @@ class CustomerRepository
 
     public function customerTransactions($id, $from = null, $to = null)
     {
-        $customer = Customer::findOrFail($id);
+        $customer = $this->find($id);
 
         $query = $customer->customerTransactions()->orderBy('created_at');
 
@@ -63,7 +64,13 @@ class CustomerRepository
 
     public function find($id)
     {
-        return $this->customer::findOrFail($id);
+        $customer = $this->customer::find($id);
+
+        if (! $customer) {
+            throw new RecordNotFoundException('Customer not found');
+        }
+
+        return $customer;
     }
 
     public function store(array $data)
