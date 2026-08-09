@@ -83,6 +83,7 @@ class SaleRepository
                 $sale = $this->createSale($data, $isConfirmed);
                 $this->handleConfirmedSale($sale);
             }
+            $sale->load('user');
             DB::commit();
 
             return $sale;
@@ -131,6 +132,9 @@ class SaleRepository
             } else {
                 $sale = $this->updateSale($sale, $data);
             }
+            // Not loadMissing: find() already loaded the previous author, and
+            // user_id has just been reassigned to whoever is editing now.
+            $sale->load('user');
             DB::commit();
 
             return $sale;

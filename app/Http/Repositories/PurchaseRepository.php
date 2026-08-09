@@ -26,21 +26,21 @@ class PurchaseRepository
     public function indexBySupplier($supplierId, $search)
     {
         if ($search) {
-            return $this->purchase::with('supplier', ['rawMaterials' => function ($query) {
+            return $this->purchase::with(['supplier', 'user', 'rawMaterials' => function ($query) {
                 $query->withTrashed();
             }])
                 ->where('supplier_id', $supplierId)
                 ->where('id', 'like', "%$search%")
                 ->orderBy('id', 'desc')->paginate(15);
         }
-        return $this->purchase::with('supplier', 'rawMaterials')
+        return $this->purchase::with('supplier', 'user', 'rawMaterials')
             ->where('supplier_id', $supplierId)
             ->orderBy('id', 'desc')->paginate(15);
     }
 
     public function find($id)
     {
-        return $this->purchase::with('supplier', 'rawMaterials')->findOrFail($id);
+        return $this->purchase::with('supplier', 'user', 'rawMaterials')->findOrFail($id);
     }
 
 
@@ -55,6 +55,7 @@ class PurchaseRepository
                 $this->storeSupplierTransaction($purchase);
                 $this->calculateRawMaterialsQuantity($purchase);
             }
+            $purchase->load('user');
             DB::commit();
             return $purchase;
         } catch (\Throwable $th) {
@@ -73,6 +74,9 @@ class PurchaseRepository
             $purchase->update($data);
             $purchase->refresh();
             $this->calculateRawMaterialsQuantity($purchase);
+            // Not loadMissing: find() already loaded the previous author, and
+            // user_id has just been reassigned to whoever is editing now.
+            $purchase->load('user');
             DB::commit();
             return $purchase;
         } catch (\Throwable $th) {
