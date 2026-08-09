@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerTransactionController;
+use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\ProductController;
@@ -146,6 +147,12 @@ Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
         Route::get('users/{id}', [UserController::class, 'show']);
         Route::put('users/{id}', [UserController::class, 'update']);
         Route::delete('users/{id}', [UserController::class, 'destroy']);
+
+        Route::get('database/backups', [DatabaseBackupController::class, 'index']);
+        Route::post('database/backups', [DatabaseBackupController::class, 'store'])
+            ->middleware('throttle:3,1');
+        Route::get('database/backups/{name}/download', [DatabaseBackupController::class, 'download']);
+        Route::delete('database/backups/{name}', [DatabaseBackupController::class, 'destroy']);
 
         Route::put('expenses/{id}', [ExpenseController::class, 'update']);
         Route::get('reports/sales-statistics', [ReportController::class, 'salesStatistics']);

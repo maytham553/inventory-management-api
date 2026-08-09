@@ -110,6 +110,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Database Dump
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the on-demand database backup. On cPanel the mysqldump
+    | binary is not always on the PATH, so its location is configurable.
+    |
+    */
+
+    'dump' => [
+        'binary' => env('DB_DUMP_BINARY', 'mysqldump'),
+        'timeout' => (int) env('DB_DUMP_TIMEOUT', 300),
+        'keep' => (int) env('DB_DUMP_KEEP', 25),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Redis Databases
     |--------------------------------------------------------------------------
     |
