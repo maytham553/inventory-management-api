@@ -37,14 +37,22 @@ jobs:
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          echo "Testing connection to $SSH_HOST:$SSH_PORT ..."
-          if ! ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" \
+          for attempt in 1 2 3 4 5; do
+            echo "Connection attempt $attempt to $SSH_HOST:$SSH_PORT ..."
+            if ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" \
                    -o StrictHostKeyChecking=accept-new \
                    -o BatchMode=yes -o ConnectTimeout=20 \
                    "$SSH_USER@$SSH_HOST" 'echo connection-ok'; then
-            echo "::error::Cannot reach the server. Check the ssh output above: a network timeout means the firewall blocks GitHub runner IPs, while 'Permission denied' means the deploy key is not authorized in cPanel."
-            exit 1
-          fi
+              exit 0
+            fi
+            if [ "$attempt" -lt 5 ]; then
+              echo "Attempt $attempt failed, waiting 45s before retrying ..."
+              sleep 45
+            fi
+          done
+
+          echo "::error::Cannot reach the server after 5 attempts. A network timeout means the host firewall is throttling or blocking GitHub runner IPs; 'Permission denied' means the deploy key is not authorized in cPanel."
+          exit 1
 
       - name: Deploy
         run: |
